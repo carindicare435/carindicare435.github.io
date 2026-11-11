@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="en-IN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Admin | Bookings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root { --ink:#171a1f; --graphite:#22262d; --accent:#6b3fa0; --green:#1e8a54; --red:#b3261e; --paper:#f6f5f2; --line:#e4e2dd; --muted:#646b75; --white:#ffffff; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: Poppins, system-ui, Arial, sans-serif; background: var(--paper); color: var(--ink); font-size: 14px; }
+  button, input, select, textarea { font: inherit; }
+  .btn { background: var(--accent); color:#fff; border:0; border-radius:6px; padding:9px 14px; cursor:pointer; font-weight:600; font-size:13px; text-decoration:none; display:inline-block; }
+  .btn.ghost { background:#fff; color:var(--ink); border:1px solid #cfd4db; }
+  .btn.green { background: var(--green); }
+  .btn.red { background: var(--red); }
+  .btn.wa { background:#25d366; }
+  .btn.sm { padding:6px 10px; font-size:12px; }
+  input, select, textarea { width:100%; border:1px solid #cfd4db; border-radius:6px; padding:8px 10px; background:#fff; color:var(--ink); }
+  label { display:block; font-size:12px; font-weight:600; margin-bottom:4px; }
+  .badge { display:inline-block; padding:3px 8px; border-radius:4px; font-size:11px; font-weight:600; }
+  .s-new { background:#fff4c2; color:#6b5300; }
+  .s-confirmed { background:#e3eefc; color:#1d4f8a; }
+  .s-paid { background:#e4f4ea; color:#166b40; }
+  .s-in_progress { background:#f1ecf8; color:#4e2a7d; }
+  .s-done { background:#e9ecef; color:#333; }
+  .s-cancelled { background:#fbe4e2; color:#8c1f18; }
+  .sample { background:#ffe9a6; color:#6b5300; }
+  .layout { display:flex; min-height:100vh; }
+  aside { width:220px; flex:0 0 220px; background: var(--graphite); color:#e6e9ee; padding:20px 14px; }
+  aside .brand { font-weight:700; font-size:16px; margin-bottom:22px; }
+  aside nav a { display:block; color:#c9ced6; text-decoration:none; padding:9px 10px; border-radius:6px; margin-bottom:4px; }
+  aside nav a.active, aside nav a:hover { background:#333a44; color:#fff; }
+  aside .tools { margin-top:20px; display:grid; gap:8px; }
+  main { flex:1; padding:24px; min-width:0; }
+  h1 { font-size:22px; margin:0 0 4px; }
+  .sub { color:var(--muted); margin:0 0 18px; }
+  .cards { display:grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap:12px; margin-bottom:20px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:10px; padding:16px; }
+  .card span { color:var(--muted); font-size:12px; }
+  .card b { display:block; font-size:24px; margin-top:4px; }
+  .toolbar { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:14px; }
+  .toolbar input, .toolbar select { width:auto; min-width:150px; }
+  .wrap { overflow-x:auto; }
+  table { width:100%; border-collapse:collapse; background:#fff; border:1px solid var(--line); }
+  th, td { padding:10px 12px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; font-size:13px; }
+  th { background:#faf9f7; font-size:12px; color:var(--muted); }
+  .group { font-weight:700; margin:20px 0 8px; }
+  .modal-bg { position:fixed; inset:0; background:rgba(0,0,0,.45); display:none; align-items:flex-start; justify-content:center; padding:30px 14px; overflow:auto; z-index:50; }
+  .modal-bg.show { display:flex; }
+  .modal { background:#fff; border-radius:12px; width:min(860px,100%); padding:22px; box-shadow:0 20px 50px rgba(0,0,0,.3); }
+  .modal h2 { margin:0 0 4px; font-size:18px; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:10px 16px; margin:12px 0; }
+  .box { border:1px solid var(--line); border-radius:10px; padding:14px; margin-top:14px; }
+  .box h3 { margin:0 0 8px; font-size:14px; }
+  .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .log { font-size:12px; color:var(--muted); margin:4px 0; }
+  .login { max-width:340px; margin:12vh auto; background:#fff; border:1px solid var(--line); border-radius:12px; padding:26px; }
+  .err { color:var(--red); font-size:12px; min-height:16px; }
+  .cal-legend { display:flex; flex-wrap:wrap; gap:12px; font-size:12px; color:var(--muted); margin:8px 0 10px; }
+  .cal-legend i { display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:5px; vertical-align:middle; }
+  .dot.g { background:#17794a; } .dot.y { background:#c99a00; } .dot.r { background:#b3261e; }
+  .cal-head, .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:6px; }
+  .cal-head span { font-size:11px; color:var(--muted); text-align:center; font-weight:600; }
+  .cal-day { border:1px solid var(--line); border-radius:8px; padding:6px 4px; background:#fff; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:2px; font:inherit; color:var(--ink); }
+  .cal-day b { font-size:15px; } .cal-day small { font-size:10px; color:var(--muted); }
+  .cal-day span { font-size:10px; font-weight:600; text-align:center; } .cal-day em { font-size:10px; color:#6b5300; font-style:normal; }
+  .cal-green { background:#eef7f1; border-color:#17794a; } .cal-green span { color:#17794a; }
+  .cal-yellow { background:#fff6d6; border-color:#c99a00; } .cal-yellow span { color:#7a5a00; }
+  .cal-red { background:#fdecea; border-color:#b3261e; } .cal-red span { color:#b3261e; }
+  .hidden { display:none !important; }
+  @media (max-width:760px) {
+    .layout { flex-direction:column; }
+    aside { width:100%; flex:none; }
+    .grid2 { grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div id="loginScreen" class="login">
+  <h2 style="margin:0 0 14px;">Admin sign in</h2>
+  <label for="pin">PIN</label>
+  <input id="pin" type="password" inputmode="numeric" autocomplete="off" onkeydown="if(event.key==='Enter')login()">
+  <label for="bkey" style="margin-top:12px;">Backend key</label>
+  <input id="bkey" type="password" autocomplete="off" onkeydown="if(event.key==='Enter')login()">
+  <div style="margin-top:12px;"><button class="btn" onclick="login()">Sign in</button></div>
+  <p id="loginErr" class="err"></p>
+  <p class="sub" style="font-size:12px;">Demo sign-in. Replace before real use, and keep this link private.</p>
+</div>
+
+<div id="app" class="layout hidden">
+  <aside>
+    <div class="brand">Carindicare Admin</div>
+    <nav>
+      <a href="#dashboard" data-route="dashboard">Dashboard</a>
+      <a href="#bookings" data-route="bookings">All bookings</a>
+      <a href="#today" data-route="today">Today's visits</a>
+      <a href="#availability" data-route="availability">Availability</a>
+      <a href="#reminders" data-route="reminders">Reminders</a>
+      <a href="#cars" data-route="cars">Cars and history</a>
+      <a href="#reports" data-route="reports">Reports</a>
+    </nav>
+    <div class="tools">
+      <button class="btn sm" onclick="syncFromSheet(true)">Refresh requests</button>
+      <button class="btn sm" onclick="openManual(today())">+ Manual booking</button>
+      <button class="btn sm" onclick="openAdd()">+ Add from WhatsApp</button>
+      <button class="btn sm ghost" onclick="exportCSV()">Export CSV</button>
+      <button class="btn sm ghost" onclick="clearSamples()">Remove sample bookings</button>
+      <button class="btn sm ghost" onclick="logout()">Sign out</button>
+    </div>
+  </aside>
+  <main id="view"></main>
+</div>
+
+<div class="modal-bg" id="modalBg" onclick="if(event.target===this) closeModal()">
+  <div class="modal" id="modal"></div>
+</div>
+
+<script>
+// ---------- settings ----------
+const CONFIG = {
+  adminPin: '2017',
+  backendUrl: 'https://script.google.com/macros/s/AKfycbxIQ8B9_4st748s9WQqB7rEKMfpGvy1jVgguOjB9TeUjKL_J_zQQxNPQ2MBd8LHysI8/exec',            // change this before use
+  businessName: 'Carindicare',
+  website: 'Carindicare.com',
+  businessPhone: '+91 7330704606', // shown to customers for changes and cancellations
+  upiId: 'rvj.435-1@okicici', // your UPI ID, e.g. name@bank. Used when no payment link is pasted
+  whatsappNumber: '917330704606' // your business number, country code first, no plus sign
+};
+const PACKAGES = {
+  quick:    { name: 'Basic',       price: 399,  secondCar: 199 },
+  complete: { name: 'Standard',    price: 799,  secondCar: 399 },
+  family:   { name: 'Family & Long Drive', price: 1199, secondCar: 399 }
+};
+const EV_PRICE = 199;
+const DISINFECT_PRICE = 349;
+const SLOTS = ['Morning, 9 am to 12 pm', 'Afternoon, 12 pm to 4 pm', 'Evening, 4 pm to 7 pm'];
+const STATUS = { new: 'New request', confirmed: 'Confirmed', paid: 'Paid', in_progress: 'Visit in progress', done: 'Completed', cancelled: 'Cancelled' };
+const RESULTS = ['OK', 'Watch', 'Flag', 'Not checked'];
+const CHECKS = [
+  { id: 'tyre_pressure', label: 'Tyre pressure', pkgs: ['quick', 'complete', 'family'] },
+  { id: 'tyre_tread', label: 'Tyre tread depth, cuts and uneven wear', pkgs: ['complete', 'family'] },
+  { id: 'battery_test', label: 'Battery load test (note CCA and battery age)', pkgs: ['quick', 'complete', 'family'] },
+  { id: 'battery_terminals', label: 'Battery terminals (visual)', pkgs: ['quick', 'complete', 'family'] },
+  { id: 'battery_clean', label: 'Battery terminal cleaning (only if corrosion is visible)', pkgs: ['complete', 'family'] },
+  { id: 'wipers', label: 'Wipers', pkgs: ['quick', 'complete', 'family'] },
+  { id: 'fluids', label: 'Fluid levels: engine oil, coolant, brake, washer', pkgs: ['quick', 'complete', 'family'] },
+  { id: 'washer_topup', label: 'Washer fluid top-up (fluid supplied by us)', pkgs: ['complete', 'family'] },
+  { id: 'air_filter', label: 'Air filter (visual)', pkgs: ['quick', 'complete', 'family'] },
+  { id: 'engine_scan', label: 'Engine scan (note "not completed" if it does not connect)', pkgs: ['complete', 'family'] },
+  { id: 'brake_pads', label: 'Brake pads, internal and outer', pkgs: ['complete', 'family'] },
+  { id: 'brake_fluid', label: 'Coolant and brake fluid condition', pkgs: ['family'] },
+  { id: 'ac', label: 'AC cooling', pkgs: ['family'] },
+  { id: 'ev_visual', label: 'EV visual check (charging port, underbody visible from the side and wheel arches with no lifting, brake discs, tyres, dashboard warnings)', pkgs: [], ev: true }
+];
+
+// ---------- storage ----------
+const KEY = 'runvel-admin-v1';
+let db; // loaded after the helper functions are defined
+let current = null;
+const dirty = new Set(); // bookings changed locally, waiting to be pushed
+
+function loadDb() {
+  try {
+    const d = JSON.parse(localStorage.getItem(KEY));
+    if (d && Array.isArray(d.bookings)) return d;
+  } catch (e) {}
+  return { bookings: sampleBookings() };
+}
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(db)); } catch (e) {}
+  dirty.forEach(id => { const x = db.bookings.find(y => y.id === id); if (x) pushBooking(x); });
+  dirty.clear();
+}
+
+// ---------- helpers ----------
+const pad = n => String(n).padStart(2, '0');
+function isoDate(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+function today() { return isoDate(new Date()); }
+function offsetDate(days) { const d = new Date(); d.setDate(d.getDate() + days); return isoDate(d); }
+function niceDate(iso) { return new Date(iso + 'T00:00').toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' }); }
+const fmt = n => '₹' + Math.round(n).toLocaleString('en-IN');
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function uid() { return Math.random().toString(36).slice(2, 9) + Date.now().toString(36); }
+function slotIndex(s) { const i = SLOTS.indexOf(s); return i < 0 ? 9 : i; }
+function total(b) { const p = PACKAGES[b.pkg]; return p.price + (b.secondCar ? p.secondCar : 0) + (b.ev ? EV_PRICE : 0) + (b.disinfect && b.pkg !== 'family' ? DISINFECT_PRICE : 0); }
+function paidSum(b) { return (b.payments || []).reduce((s, p) => s + p.amount, 0); }
+function outstanding(b) { return total(b) - paidSum(b); }
+function log(b, text) { b.log = b.log || []; b.log.unshift({ at: new Date().toLocaleString('en-IN'), text }); dirty.add(b.id); }
+function applicableChecks(b) { return CHECKS.filter(c => c.ev ? b.ev : c.pkgs.includes(b.pkg)); }
+function waLink(phone, text) { return 'https://wa.me/91' + phone + '?text=' + encodeURIComponent(text); }
+function mk(o) {
+  return Object.assign({
+    id: uid(), createdAt: new Date().toISOString(), status: 'new', secondCar: false, ev: false,
+    notes: '', paymentLink: '', payments: [], checks: {}, log: [], sample: false,
+    plan: 'none', subId: '', subStart: '', reminders: [], disinfect: false
+  }, o);
+}
+
+db = loadDb();
+
+// ---------- sample data ----------
+function sampleBookings() {
+  const t = today();
+  const b = [
+    mk({ name: 'Sample customer A', phone: '9999900001', community: 'Sample Heights, Block A, 101', car: 'Maruti Swift 2019', reg: 'TS 00 AA 0001', pkg: 'complete', date: offsetDate(1), slot: SLOTS[0], status: 'new', sample: true }),
+    mk({ name: 'Sample customer B', phone: '9999900002', community: 'Sample Heights, Block C, 304', car: 'Hyundai Creta 2021', reg: 'TS 00 AA 0002', pkg: 'family', date: t, slot: SLOTS[1], status: 'confirmed', secondCar: true, sample: true }),
+    mk({ name: 'Sample customer C', phone: '9999900003', community: 'Sample Gardens, Villa 12', car: 'Tata Nexon EV 2022', reg: 'TS 00 AA 0003', pkg: 'quick', date: t, slot: SLOTS[0], status: 'paid', ev: true, sample: true, payments: [{ method: 'UPI', amount: 598, date: t }] })
+  ];
+  return b;
+}
+
+// ---------- auth ----------
+function login() {
+  const pin = document.getElementById('pin').value;
+  if (pin === CONFIG.adminPin) {
+    try { sessionStorage.setItem('runvel-admin-ok', '1'); sessionStorage.setItem('runvel-key', document.getElementById('bkey').value.trim()); } catch (e) {}
+    showApp();
+  } else {
+    document.getElementById('loginErr').textContent = 'Incorrect PIN.';
+  }
+}
+function logout() {
+  try { sessionStorage.removeItem('runvel-admin-ok'); } catch (e) {}
+  location.reload();
+}
+function showApp() {
+  syncFromSheet(false);
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+  if (!location.hash) location.hash = '#dashboard';
+  render();
+}
+
+// ---------- routing and views ----------
+function route() { return (location.hash || '#dashboard').slice(1); }
+function render() {
+  document.querySelectorAll('aside nav a').forEach(a => a.classList.toggle('active', a.dataset.route === route()));
+  const r = route();
+  if (r === 'bookings') renderBookings();
+  else if (r === 'today') renderToday();
+  else if (r === 'availability') renderAvailability();
+  else if (r === 'reminders') renderReminders();
+  else if (r === 'cars') renderCars();
+  else if (r === 'reports') renderReports();
+  else renderDashboard();
+}
+window.addEventListener('hashchange', render);
+
+function badge(status) { return '<span class="badge s-' + status + '">' + esc(STATUS[status]) + '</span>'; }
+function sampleTag(b) { return b.sample ? ' <span class="badge sample">Sample</span>' : ''; }
+function sortByWhen(a, b) { return (a.date + slotIndex(a.slot)).localeCompare(b.date + slotIndex(b.slot)); }
+
+function renderDashboard() {
+  const t = today(), m = t.slice(0, 7);
+  const active = db.bookings.filter(b => !['new', 'cancelled'].includes(b.status));
+  const newCount = db.bookings.filter(b => b.status === 'new').length;
+  const todayCount = db.bookings.filter(b => b.date === t && !['new', 'cancelled'].includes(b.status)).length;
+  const doneMonth = db.bookings.filter(b => b.status === 'done' && b.date.startsWith(m)).length;
+  const collected = db.bookings.reduce((s, b) => s + (b.payments || []).filter(p => p.date.startsWith(m)).reduce((x, p) => x + p.amount, 0), 0);
+  const owed = active.reduce((s, b) => s + Math.max(0, outstanding(b)), 0);
+  const needs = db.bookings.filter(b => b.status === 'new').sort(sortByWhen);
+
+  document.getElementById('view').innerHTML =
+    '<h1>Dashboard</h1><p class="sub">' + niceDate(t) + '. Bookings are kept in this browser.</p>' +
+    '<div class="cards">' +
+      '<div class="card"><span>New requests</span><b>' + newCount + '</b></div>' +
+      '<div class="card"><span>Visits today</span><b>' + todayCount + '</b></div>' +
+      '<div class="card"><span>Completed this month</span><b>' + doneMonth + '</b></div>' +
+      '<div class="card"><span>Collected this month</span><b>' + fmt(collected) + '</b></div>' +
+      '<div class="card"><span>Still to collect</span><b>' + fmt(owed) + '</b></div>' +
+    '</div>' +
+    '<div class="box"><h3>New requests to confirm</h3>' +
+      (needs.length ? tableFor(needs) : '<p class="sub">No new requests.</p>') +
+    '</div>';
+}
+
+// Columns used on the All bookings page: each one can be sorted and filtered.
+const COLS = [
+  { key: 'when', label: 'When', value: b => b.date + ' ' + b.slot },
+  { key: 'customer', label: 'Customer', value: b => b.name + ' ' + b.phone },
+  { key: 'community', label: 'Community', value: b => b.community },
+  { key: 'car', label: 'Car', value: b => b.reg },
+  { key: 'pkg', label: 'Package', value: b => PACKAGES[b.pkg].name + (b.secondCar ? ' second car' : '') + (b.ev ? ' EV check' : '') },
+  { key: 'total', label: 'Total', value: b => total(b), num: true },
+  { key: 'status', label: 'Status', value: b => STATUS[b.status], select: true }
+];
+const tableState = { sort: { key: 'when', dir: 'asc' }, filters: {} };
+
+function bookingRow(b) {
+  return '<tr>' +
+    '<td>' + niceDate(b.date) + '<br><span class="sub">' + esc(b.slot) + '</span></td>' +
+    '<td>' + esc(b.name) + '<br><span class="sub">' + esc(b.phone) + '</span>' + sampleTag(b) + '</td>' +
+    '<td>' + esc(b.community) + '</td>' +
+    '<td>' + esc(b.reg) + '<br><span class="sub">' + esc(b.reg) + '</span></td>' +
+    '<td>' + esc(PACKAGES[b.pkg].name) + (b.secondCar ? '<br><span class="sub">+ second car</span>' : '') + (b.ev ? '<br><span class="sub">+ EV visual check</span>' : '') + '</td>' +
+    '<td>' + fmt(total(b)) + '</td>' +
+    '<td>' + badge(b.status) + '</td>' +
+    '<td><button class="btn sm" onclick="openBooking(\'' + b.id + '\')">Open</button></td>' +
+  '</tr>';
+}
+
+function tableFor(list) {
+  return '<div class="wrap"><table><thead><tr><th>When</th><th>Customer</th><th>Community</th><th>Car</th><th>Package</th><th>Total</th><th>Status</th><th></th></tr></thead><tbody>' +
+    list.map(bookingRow).join('') +
+    '</tbody></table></div>';
+}
+
+function renderBookings() {
+  if (!document.getElementById('bkBody')) {
+    document.getElementById('view').innerHTML =
+      '<h1>All bookings</h1>' +
+      '<p class="sub">Click a heading to sort. Type in the boxes under a heading to filter that column.</p>' +
+      '<div class="toolbar"><input id="q" placeholder="Search everything" oninput="drawBookingList()"></div>' +
+      '<div class="wrap"><table id="bkTable"><thead>' +
+        '<tr>' + COLS.map(c => '<th style="cursor:pointer;white-space:nowrap;" onclick="sortBy(\'' + c.key + '\')">' + c.label + ' <span id="arr-' + c.key + '" class="sub"></span></th>').join('') + '<th></th></tr>' +
+        '<tr>' + COLS.map(c => c.select
+          ? '<th><select onchange="setFilter(\'' + c.key + '\', this.value)"><option value="">All</option>' + Object.keys(STATUS).map(k => '<option value="' + k + '">' + STATUS[k] + '</option>').join('') + '</select></th>'
+          : '<th><input placeholder="Filter" oninput="setFilter(\'' + c.key + '\', this.value)"></th>'
+        ).join('') + '<th></th></tr>' +
+      '</thead><tbody id="bkBody"></tbody></table></div>';
+  }
+  drawBookingList();
+}
+
+function sortBy(key) {
+  if (tableState.sort.key === key) tableState.sort.dir = tableState.sort.dir === 'asc' ? 'desc' : 'asc';
+  else tableState.sort = { key: key, dir: 'asc' };
+  drawBookingList();
+}
+
+function setFilter(key, value) {
+  if (value) tableState.filters[key] = value;
+  else delete tableState.filters[key];
+  drawBookingList();
+}
+
+function sortValue(col, b) {
+  if (col.key === 'when') return b.date + '|' + String(slotIndex(b.slot)).padStart(2, '0');
+  if (col.num) return col.value(b);
+  return String(col.value(b)).toLowerCase();
+}
+
+function drawBookingList() {
+  if (!document.getElementById('bkBody')) return;
+  const needle = ((document.getElementById('q') || {}).value || '').trim().toLowerCase();
+  let list = db.bookings.slice();
+
+  if (needle) {
+    list = list.filter(b => [b.name, b.phone, b.community, b.reg].join(' ').toLowerCase().includes(needle));
+  }
+  Object.keys(tableState.filters).forEach(key => {
+    const col = COLS.find(c => c.key === key);
+    const f = tableState.filters[key];
+    list = list.filter(b => col.select
+      ? b.status === f
+      : String(col.value(b)).toLowerCase().includes(f.toLowerCase()));
+  });
+
+  const col = COLS.find(c => c.key === tableState.sort.key);
+  const dir = tableState.sort.dir === 'asc' ? 1 : -1;
+  list.sort((a, b) => {
+    const x = sortValue(col, a), y = sortValue(col, b);
+    return (typeof x === 'number' ? x - y : String(x).localeCompare(String(y))) * dir;
+  });
+
+  document.getElementById('bkBody').innerHTML = list.length
+    ? list.map(bookingRow).join('')
+    : '<tr><td colspan="8" class="sub">No bookings match.</td></tr>';
+
+  COLS.forEach(c => {
+    const el = document.getElementById('arr-' + c.key);
+    if (el) el.textContent = tableState.sort.key === c.key ? (tableState.sort.dir === 'asc' ? '▲' : '▼') : '';
+  });
+}
+
+function renderToday() {
+  const t = today();
+  const list = db.bookings.filter(b => b.date === t && !['new', 'cancelled'].includes(b.status)).sort(sortByWhen);
+  const groups = {};
+  list.forEach(b => { (groups[b.community] = groups[b.community] || []).push(b); });
+  let html = '<h1>Today\u2019s visits</h1><p class="sub">' + niceDate(t) + '. Grouped by community so you can plan the route.</p>';
+  if (!list.length) html += '<p class="sub">No visits booked for today.</p>';
+  Object.keys(groups).forEach(c => {
+    html += '<div class="group">' + esc(c) + ' <span class="sub">(' + groups[c].length + ' visit' + (groups[c].length > 1 ? 's' : '') + ')</span></div>' +
+      tableFor(groups[c]);
+  });
+  document.getElementById('view').innerHTML = html;
+}
+
+// ---------- booking detail ----------
+function openBooking(id) {
+  current = id;
+  renderModal();
+  document.getElementById('modalBg').classList.add('show');
+}
+function closeModal() {
+  document.getElementById('modalBg').classList.remove('show');
+  current = null;
+  render();
+}
+function getBooking() { return db.bookings.find(b => b.id === current); }
+
+function renderModal() {
+  const b = getBooking();
+  if (!b) return;
+  const p = PACKAGES[b.pkg];
+  const nice = niceDate(b.date);
+  let actions = '';
+  let extra = '';
+
+  if (b.status === 'new') {
+    extra = paymentLinkBox(b);
+    actions = '<button class="btn green" onclick="confirmBooking()">Confirm slot and send booking details</button>' +
+              '<button class="btn green" onclick="markPaidAtBooth(\'UPI\')">Paid by UPI (proof seen)</button>' +
+              '<button class="btn" onclick="markPaidAtBooth(\'Cash\')">Paid in cash</button>' +
+              '<button class="btn red" onclick="cancelBooking()">Decline</button>';
+  } else if (b.status === 'confirmed') {
+    actions = '<button class="btn wa" onclick="sendPaymentRequest()">Send payment request</button>' +
+              '<button class="btn green" onclick="markPaid()">Record payment</button>' +
+              '<button class="btn red" onclick="cancelBooking()">Cancel booking</button>';
+    extra = '<div class="box"><h3>Payment link</h3><div class="row"><input id="plink" placeholder="Paste the payment link for this amount" value="' + esc(b.paymentLink) + '" style="flex:1;"></div></div>';
+  } else if (b.status === 'paid') {
+    actions = '<button class="btn green" onclick="markPaid()">Record payment</button>' +
+              '<button class="btn" onclick="startVisit()">Start visit</button>' +
+              '<button class="btn red" onclick="cancelBooking()">Cancel booking</button>';
+  } else if (b.status === 'in_progress') {
+    actions = '<button class="btn" onclick="saveChecklist()">Save checklist</button>' +
+              '<button class="btn green" onclick="completeVisit()">Complete visit and send report</button>';
+  } else if (b.status === 'done') {
+    actions = '<button class="btn wa" onclick="sendReport()">Send report again</button>';
+    extra = '<div class="box"><h3>Report</h3><textarea rows="9" readonly>' + esc(reportText(b)) + '</textarea></div>';
+  } else {
+    actions = '<span class="sub">This booking is cancelled.</span>';
+  }
+
+  if (['new', 'confirmed', 'paid', 'in_progress'].includes(b.status)) extra += rescheduleBox(b);
+  if (b.status === 'new' || b.status === 'confirmed') extra += bookingReceivedBox(b);
+  if (['paid', 'in_progress', 'done'].includes(b.status)) extra += confirmationBox(b);
+  if (b.plan && b.plan !== 'none') extra += subscriptionBox(b);
+  let checklist = '';
+  if (['paid', 'in_progress', 'done'].includes(b.status)) {
+    checklist = '<div class="box"><h3>Visit checklist</h3>' +
+      applicableChecks(b).map(c => {
+        const saved = b.checks[c.id] || {};
+        return '<div class="row" style="margin-bottom:8px;align-items:flex-start;">' +
+          '<div style="flex:1 1 260px;font-size:13px;padding-top:8px;">' + esc(c.label) + '</div>' +
+          '<select id="res-' + c.id + '" style="width:130px;">' +
+            '<option value="">Choose</option>' +
+            RESULTS.map(r => '<option' + (saved.result === r ? ' selected' : '') + '>' + r + '</option>').join('') +
+          '</select>' +
+          '<input id="note-' + c.id + '" placeholder="Note (reading, condition)" value="' + esc(saved.note || '') + '" style="flex:1 1 200px;width:auto;">' +
+        '</div>';
+      }).join('') +
+      '<p class="sub" style="font-size:12px;">Visual and basic checks only. Anything marked Watch or Flag is recommended for a workshop of the customer\u2019s choice.</p>' +
+    '</div>';
+  }
+
+  const logHtml = (b.log || []).slice(0, 8).map(l => '<div class="log">' + esc(l.at) + ' · ' + esc(l.text) + '</div>').join('') || '<div class="log">No activity yet.</div>';
+
+  document.getElementById('modal').innerHTML =
+    '<div class="row" style="justify-content:space-between;"><h2>' + esc(b.name) + sampleTag(b) + '</h2>' + badge(b.status) + '</div>' +
+    '<p class="sub" style="margin:0;">' + esc(b.reg) + (b.reg2 ? ' · second car ' + esc(b.reg2) : '') + '</p>' +
+    '<div class="grid2" style="margin-top:12px;">' +
+      '<div><label>When</label>' + nice + ', ' + esc(b.slot) + '</div>' +
+      '<div><label>Community</label>' + esc(b.community) + '</div>' +
+      '<div><label>Phone</label>' + esc(b.phone) + '</div>' +
+      '<div><label>Package</label>' + esc(p.name) + (b.secondCar ? ' + second car' : '') + (b.ev ? ' + EV visual check' : '') + '</div>' +
+      '<div><label>Total incl. GST</label>' + fmt(total(b)) + '</div>' +
+      '<div><label>Paid so far</label>' + fmt(paidSum(b)) + (outstanding(b) > 0 && b.status !== 'new' ? ' · ' + fmt(outstanding(b)) + ' to collect' : '') + '</div>' +
+      (b.notes ? '<div style="grid-column:1/-1;' + (/^PAID/.test(b.notes) ? 'background:#fff6d6;border:1px solid #c99a00;border-radius:8px;padding:8px;' : '') + '"><label>' + (/^PAID/.test(b.notes) ? 'Paid at the stand: check the payment, then record it below' : 'Notes') + '</label>' + esc(b.notes) + '</div>' : '') +
+    '</div>' +
+    '<div class="row" style="margin-top:6px;">' + actions + '</div>' +
+    extra +
+    (b.status === 'paid' || b.status === 'confirmed' ? '<div class="box"><h3>Record payment</h3><div class="grid2" style="margin:0;">' +
+      '<div><label for="pmethod">Method</label><select id="pmethod"><option>UPI</option><option>Cash</option></select></div>' +
+      '<div><label for="pamt">Amount</label><input id="pamt" type="number" value="' + Math.max(0, outstanding(b)) + '"></div>' +
+      '</div></div>' : '') +
+    checklist +
+    '<div class="box"><h3>Activity</h3>' + logHtml + '</div>' +
+    '<div class="row" style="justify-content:flex-end;margin-top:14px;"><button class="btn ghost" onclick="closeModal()">Close</button></div>';
+}
+
+function saveAndRefresh(b) { save(); renderModal(); }
+
+function confirmBooking() {
+  const b = getBooking();
+  const link = (document.getElementById('plink') || {}).value || '';
+  if (link.trim()) b.paymentLink = link.trim();
+  if (!paymentInfo(b)) { alert('Paste a payment link here, or set your UPI ID at the top of the admin file.'); return; }
+  b.status = 'confirmed';
+  log(b, 'Slot held. Booking details and payment instructions sent');
+  saveAndRefresh(b);
+  window.open(waLink(b.phone, bookingReceivedText(b)), '_blank');
+}
+
+// Staff mark a booking paid at the booth, once the customer's payment is shown.
+// The WhatsApp confirmation can be sent later from the booking window.
+function markPaidAtBooth(method) {
+  const b = getBooking();
+  const amount = total(b);
+  if (!confirm('Mark as paid by ' + method + ' for ' + fmt(amount) + '? Only do this after you have seen the payment.')) return;
+  b.payments = b.payments || [];
+  b.payments.push({ method: method, amount: amount, date: today() });
+  b.status = 'paid';
+  log(b, 'Paid at the booth by ' + method + ' (' + fmt(amount) + '). Staff saw the payment.');
+  startSubscription(b);
+  saveAndRefresh(b);
+}
+
+function sendPaymentRequest() {
+  const b = getBooking();
+  const link = (document.getElementById('plink') || {}).value || '';
+  if (!link.trim()) { alert('Paste the payment link first.'); return; }
+  b.paymentLink = link.trim();
+  log(b, 'Payment request sent');
+  save();
+  window.open(waLink(b.phone, 'Hi ' + b.name + ', here is the payment link for your ' + PACKAGES[b.pkg].name + ' visit: ' + b.paymentLink + ' (total ' + fmt(total(b)) + ' incl. GST).'), '_blank');
+  renderModal();
+}
+
+function markPaid() {
+  const b = getBooking();
+  const method = document.getElementById('pmethod').value;
+  const amount = Number(document.getElementById('pamt').value || 0);
+  if (amount <= 0) { alert('Enter the amount received.'); return; }
+  b.payments.push({ method, amount, date: today() });
+  b.status = 'paid';
+  log(b, 'Payment of ' + fmt(amount) + ' recorded by ' + method);
+  startSubscription(b);
+  saveAndRefresh(b);
+  if (confirm('Payment received. Send the booking confirmation to the customer now?')) {
+    window.open(waLink(b.phone, confirmationText(b)), '_blank');
+    log(b, 'Booking confirmation sent to customer');
+    save();
+    renderModal();
+  }
+}
+
+function startVisit() {
+  const b = getBooking();
+  b.status = 'in_progress';
+  log(b, 'Visit started');
+  saveAndRefresh(b);
+}
+
+function readChecklist(b) {
+  const out = {};
+  applicableChecks(b).forEach(c => {
+    const r = (document.getElementById('res-' + c.id) || {}).value || '';
+    const n = (document.getElementById('note-' + c.id) || {}).value || '';
+    out[c.id] = { result: r, note: n.trim() };
+  });
+  return out;
+}
+
+function saveChecklist() {
+  const b = getBooking();
+  b.checks = readChecklist(b);
+  log(b, 'Checklist saved');
+  saveAndRefresh(b);
+}
+
+function completeVisit() {
+  const b = getBooking();
+  b.checks = readChecklist(b);
+  const missing = applicableChecks(b).filter(c => !b.checks[c.id] || !b.checks[c.id].result);
+  if (missing.length) { alert('Choose a result for every item first. Missing: ' + missing.map(c => c.label).join('; ')); return; }
+  b.status = 'done';
+  log(b, 'Visit completed; report sent');
+  save();
+  window.open(waLink(b.phone, reportText(b)), '_blank');
+  renderModal();
+}
+
+function sendReport() {
+  const b = getBooking();
+  window.open(waLink(b.phone, reportText(b)), '_blank');
+}
+
+function cancelBooking() {
+  const b = getBooking();
+  const sameDay = b.date <= today();
+  const charge = Math.round(total(b) * 0.10);
+  const question = sameDay
+    ? 'This visit is today or has passed. A 10% cancellation charge of ' + fmt(charge) + ' applies. Cancel the booking?'
+    : 'Cancel this booking?';
+  if (!confirm(question)) return;
+  b.status = 'cancelled';
+  log(b, 'Booking cancelled' + (sameDay ? '. Same-day cancellation: 10% charge of ' + fmt(charge) + ' applies' : ''));
+  saveAndRefresh(b);
+}
+
+// ---------- report text sent to the customer ----------
+function earliestBookableDate() {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() + 2);
+  return isoDate(d);
+}
+
+function reportText(b) {
+  const checks = applicableChecks(b);
+  const lines = [
+    'Vehicle check report',
+    'Customer: ' + b.name,
+    'Community and block: ' + b.community,
+    b.reg + ', ' + niceDate(b.date),
+    '',
+    'Visual and basic check only.',
+    'This is not a certificate of roadworthiness.',
+    ''
+  ];
+  checks.forEach(c => {
+    const r = b.checks[c.id] || {};
+    if (r.result === 'Not checked' || !r.result) return;
+    lines.push(c.label + ': ' + r.result + (r.note ? ' (' + r.note + ')' : ''));
+  });
+  const notChecked = checks.filter(c => { const r = b.checks[c.id] || {}; return r.result === 'Not checked' || !r.result; });
+  if (notChecked.length) {
+    lines.push('', 'Not checked on this visit:');
+    notChecked.forEach(c => lines.push('- ' + c.label));
+  }
+  const watch = checks.filter(c => ['Watch', 'Flag'].includes((b.checks[c.id] || {}).result));
+  if (watch.length) {
+    lines.push('', 'Recommended: have these looked at by a workshop of your choice:');
+    watch.forEach(c => lines.push('- ' + c.label + ' (' + b.checks[c.id].result + ')'));
+  }
+  return lines.join('\n');
+}
+
+// ---------- add a booking by pasting the WhatsApp message ----------
+function openAdd() {
+  document.getElementById('modal').innerHTML =
+    '<h2>Add booking from WhatsApp</h2>' +
+    '<p class="sub">Paste the booking message exactly as it arrived. It will be read into a new request.</p>' +
+    '<textarea id="pasteBox" rows="10" placeholder="Booking request&#10;Name: ...&#10;WhatsApp: ..."></textarea>' +
+    '<p id="pasteErr" class="err"></p>' +
+    '<div class="row" style="justify-content:flex-end;margin-top:10px;"><button class="btn" onclick="addFromPaste()">Add booking</button><button class="btn ghost" onclick="closeModal()">Cancel</button></div>';
+  document.getElementById('modalBg').classList.add('show');
+}
+
+function addFromPaste() {
+  try {
+    const b = parseWA(document.getElementById('pasteBox').value);
+    if (b.plan !== 'none') b.subId = b.id;
+    log(b, 'Added from WhatsApp message');
+    db.bookings.push(b);
+    save();
+    closeModal();
+    location.hash = '#bookings';
+  } catch (e) {
+    document.getElementById('pasteErr').textContent = e.message;
+  }
+}
+
+function parseWA(text) {
+  const lines = text.split(/\r?\n/).map(l => l.trim());
+  const field = label => {
+    for (const l of lines) {
+      const i = l.indexOf(':');
+      if (i > 0 && l.slice(0, i).trim().toLowerCase() === label.toLowerCase()) return l.slice(i + 1).trim();
+    }
+    return '';
+  };
+  const has = name => lines.some(l => l.toLowerCase().startsWith(name.toLowerCase() + ':'));
+  const pkg = Object.keys(PACKAGES).find(k => has(PACKAGES[k].name));
+  if (!pkg) throw new Error('Package line not found. It should read, for example, "Standard: ₹799".');
+  const phone = field('WhatsApp').replace(/\D/g, '').slice(-10);
+  const name = field('Name');
+  const community = field('Address with flat or house number') || field('Community, block and flat');
+  const car = field('Car');
+  const reg = field('Registration');
+  const slotText = field('Time');
+  const slot = SLOTS.find(s => s.toLowerCase() === slotText.toLowerCase()) || slotText;
+  const dateRaw = field('Date').replace(/^[A-Za-z]+,\s*/, '');
+  const d = new Date(dateRaw);
+  if (!name || phone.length !== 10 || !community || !reg || isNaN(d)) {
+    throw new Error('Some details are missing or unreadable. Check the name, WhatsApp number, community, car, registration and date.');
+  }
+  return mk({
+    name, phone, community, car, reg, reg2: field('Second car registration'), pkg, date: isoDate(d), slot: slot || SLOTS[0],
+    secondCar: has('Second car'), ev: has('EV Visual Check'), disinfect: has('Interior disinfection'), notes: field('Notes'), plan: planFromText(field('Plan'))
+  });
+}
+
+// ---------- export and housekeeping ----------
+function exportCSV() {
+  const head = ['Date', 'Slot', 'Name', 'Phone', 'Community', 'Car', 'Registration', 'Package', 'Second car', 'EV check', 'Total', 'Paid', 'Status'];
+  const rows = db.bookings.slice().sort(sortByWhen).map(b => [b.date, b.slot, b.name, b.phone, b.community, b.car, b.reg, PACKAGES[b.pkg].name, b.secondCar ? 'Yes' : 'No', b.ev ? 'Yes' : 'No', total(b), paidSum(b), STATUS[b.status]]);
+  const csv = [head, ...rows].map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+  a.download = 'bookings-' + today() + '.csv';
+  a.click();
+}
+
+function clearSamples() {
+  if (!confirm('Remove the sample bookings?')) return;
+  db.bookings = db.bookings.filter(b => !b.sample);
+  save();
+  render();
+}
+
+// ---------- plans and subscriptions ----------
+const PLANS = {
+  quarterly_complete: { name: 'Quarterly Standard', visits: 4, gap: 3, price: 2699 },
+  family_yearly: { name: 'Family & Long Drive', visits: 3, gap: 4, price: 3057 }
+};
+function planName(k) { return PLANS[k] ? PLANS[k].name : 'Single visit'; }
+function planFromText(t) {
+  const x = String(t || '').toLowerCase();
+  if (x.indexOf('quarterly') >= 0) return 'quarterly_complete';
+  if (x.indexOf('family') >= 0 && x.indexOf('subscription') >= 0) return 'family_yearly';
+  return 'none';
+}
+function dayNum(iso) { const p = String(iso).split('-'); return Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000; }
+function addMonths(iso, n) {
+  const p = String(iso).split('-');
+  return new Date(Date.UTC(+p[0], +p[1] - 1 + n, +p[2])).toISOString().slice(0, 10);
+}
+function subEnd(b) { return addMonths(b.subStart, 12); }
+function subGroup(b) { return db.bookings.filter(x => x.subId && x.subId === b.subId); }
+function visitsUsed(b) { return subGroup(b).filter(x => ['confirmed', 'paid', 'in_progress', 'done'].includes(x.status)).length; }
+
+// The year starts on the date the first payment is recorded.
+function startSubscription(b) {
+  if (!b.plan || b.plan === 'none') return;
+  if (!b.subId) { b.subId = b.id; log(b, 'Linked to subscription'); }
+  const group = subGroup(b);
+  if (group.some(x => x.subStart)) return;
+  const start = today();
+  group.forEach(x => { x.subStart = start; log(x, 'Subscription started on payment date ' + niceDate(start)); });
+}
+
+function subscriptionBox(b) {
+  const p = PLANS[b.plan];
+  if (!p) return '';
+  const used = visitsUsed(b);
+  const left = Math.max(0, p.visits - used);
+  const status = b.subStart
+    ? 'Started ' + niceDate(b.subStart) + ' (payment date). Ends ' + niceDate(subEnd(b)) + '.'
+    : 'Not started yet. The year starts on the date the payment is recorded.';
+  return '<div class="box"><h3>Subscription: ' + esc(p.name) + '</h3>' +
+    '<p class="sub" style="margin:0 0 8px;">' + status + '</p>' +
+    '<p style="margin:0 0 8px;">Visits used: <b>' + used + '</b> of ' + p.visits + ' (' + left + ' left)</p>' +
+    '<button class="btn sm" onclick="addSubscriptionVisit()">Add next visit to this subscription</button>' +
+  '</div>';
+}
+
+function addSubscriptionVisit() {
+  const b = getBooking();
+  if (!b.subId) { b.subId = b.id; log(b, 'Linked to subscription'); }
+  const nb = mk({
+    name: b.name, phone: b.phone, community: b.community, car: b.car, reg: b.reg, reg2: b.reg2 || '',
+    pkg: b.pkg, date: today(), slot: SLOTS[0], status: 'new', plan: b.plan, subId: b.subId, subStart: b.subStart || ''
+  });
+  log(nb, 'Visit added to subscription. Set the date and slot, then confirm.');
+  db.bookings.push(nb);
+  save();
+  current = nb.id;
+  renderModal();
+  render();
+}
+
+function normReg(r) { return String(r || '').toUpperCase().replace(/[^A-Z0-9]/g, ''); }
+
+// ---------- reminders ----------
+function reminderItems() {
+  const t = today(), items = [];
+  const sentAlready = (b, key) => (b.reminders || []).some(r => r.key === key);
+
+  // visits in the next two days
+  db.bookings.forEach(b => {
+    if (!['confirmed', 'paid'].includes(b.status)) return;
+    const gap = dayNum(b.date) - dayNum(t);
+    if (gap < 0 || gap > 2) return;
+    const key = 'visit-' + b.id + '-' + b.date;
+    if (sentAlready(b, key)) return;
+    items.push({ kind: 'Visit in the next 2 days', due: b.date, b: b, key: key,
+      text: 'Hi ' + b.name + ', reminder: your ' + PACKAGES[b.pkg].name + ' is booked for ' + niceDate(b.date) + ' (' + b.slot + ') at ' + b.community + '. Please keep the car accessible for the technician. Reply if you need to change the time.' });
+  });
+
+  // subscriptions: visits due, and the year ending
+  const seen = {};
+  db.bookings.forEach(lead => {
+    if (!lead.subId || seen[lead.subId] || !PLANS[lead.plan] || !lead.subStart || lead.status === 'cancelled') return;
+    seen[lead.subId] = true;
+    const p = PLANS[lead.plan];
+    const used = visitsUsed(lead);
+    for (let k = 0; k < p.visits; k++) {
+      const due = addMonths(lead.subStart, p.gap * k);
+      const gap = dayNum(due) - dayNum(t);
+      if (used >= k + 1 || gap > 14 || gap < -30) continue;
+      const key = 'sub-' + lead.subId + '-' + k;
+      if (sentAlready(lead, key)) continue;
+      items.push({ kind: 'Subscription visit due', due: due, b: lead, key: key,
+        text: 'Hi ' + lead.name + ', your ' + p.name + ' visit is due around ' + niceDate(due) + '. Reply and we will book your slot.' });
+    }
+    const end = subEnd(lead);
+    const left = p.visits - used;
+    const egap = dayNum(end) - dayNum(t);
+    if (left > 0 && egap >= 0 && egap <= 30) {
+      const key = 'end-' + lead.subId;
+      if (!sentAlready(lead, key)) items.push({ kind: 'Subscription ending', due: end, b: lead, key: key,
+        text: 'Hi ' + lead.name + ', your ' + p.name + ' ends on ' + niceDate(end) + ' and you have ' + left + ' visit' + (left > 1 ? 's' : '') + ' left. Reply to book them before then.' });
+    }
+  });
+
+  // service due: six months after the last completed visit for each car
+  const lastDone = {};
+  db.bookings.forEach(b => {
+    if (b.status !== 'done') return;
+    const k = normReg(b.reg);
+    if (!lastDone[k] || b.date > lastDone[k].date) lastDone[k] = b;
+  });
+  Object.keys(lastDone).forEach(k => {
+    const last = lastDone[k];
+    const due = addMonths(last.date, 6);
+    const gap = dayNum(due) - dayNum(t);
+    if (gap > 14 || gap < -30) return;
+    const booked = db.bookings.some(x => normReg(x.reg) === k && x.date > last.date && ['new', 'confirmed', 'paid', 'in_progress'].includes(x.status));
+    if (booked) return;
+    const key = 'svc-' + k + '-' + due;
+    if (sentAlready(last, key)) return;
+    items.push({ kind: 'Service due', due: due, b: last, key: key,
+      text: 'Hi ' + last.name + ', your car (' + last.reg + ') is due for its next check around ' + niceDate(due) + '. Reply and we will book a slot.' });
+  });
+  return items.sort((x, y) => x.due.localeCompare(y.due));
+}
+
+function sendReminder(key) {
+  const it = reminderItems().find(i => i.key === key);
+  if (!it) return;
+  window.open(waLink(it.b.phone, it.text), '_blank');
+  it.b.reminders = (it.b.reminders || []).concat([{ key: key, at: today() }]);
+  dirty.add(it.b.id);
+  save();
+  render();
+}
+
+function renderReminders() {
+  const items = reminderItems();
+  let html = '<h1>Reminders</h1><p class="sub">Each button opens WhatsApp with the message ready. Once sent, the reminder is marked as sent and won\'t show again.</p>';
+  if (!items.length) {
+    html += '<p class="sub">No reminders due right now.</p>';
+  } else {
+    html += '<div class="wrap"><table><thead><tr><th>Due</th><th>Type</th><th>Customer</th><th>Phone</th><th>Message</th><th></th></tr></thead><tbody>' +
+      items.map(i => '<tr><td>' + niceDate(i.due) + '</td><td>' + esc(i.kind) + '</td><td>' + esc(i.b.name) + '</td><td>' + esc(i.b.phone) + '</td><td style="max-width:360px;">' + esc(i.text) + '</td><td><button class="btn sm wa" onclick="sendReminder(\'' + i.key + '\')">Send on WhatsApp</button></td></tr>').join('') +
+      '</tbody></table></div>';
+  }
+  document.getElementById('view').innerHTML = html;
+}
+
+// ---------- cars and service history ----------
+function renderCars() {
+  const byReg = {};
+  db.bookings.forEach(b => { const k = normReg(b.reg); if (k) (byReg[k] = byReg[k] || []).push(b); });
+  const rows = Object.keys(byReg).sort().map(k => {
+    const list = byReg[k].slice().sort((a, b) => b.date.localeCompare(a.date));
+    const latest = list[0];
+    const done = list.filter(x => x.status === 'done');
+    const lastVisit = done.length ? done[0].date : '';
+    const sub = list.find(x => x.plan && x.plan !== 'none');
+    return '<tr><td>—</td><td>' + esc(latest.reg) + '</td><td>' + esc(latest.name) + '<br><span class="sub">' + esc(latest.phone) + '</span></td><td>' + esc(latest.community) + '</td><td>' + done.length + '</td><td>' + (lastVisit ? niceDate(lastVisit) : '—') + '</td><td>' + (lastVisit ? niceDate(addMonths(lastVisit, 6)) : '—') + '</td><td>' + (sub ? esc(planName(sub.plan)) : '—') + '</td><td><button class="btn sm" onclick="openBooking(\'' + latest.id + '\')">Open</button></td></tr>';
+  }).join('');
+  document.getElementById('view').innerHTML =
+    '<h1>Cars and history</h1><p class="sub">One line per car, with its completed visits and when the next check is due (six months after the last visit).</p>' +
+    (rows ? '<div class="wrap"><table><thead><tr><th>Car</th><th>Registration</th><th>Customer</th><th>Community</th><th>Visits completed</th><th>Last visit</th><th>Next check due</th><th>Subscription</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div>' : '<p class="sub">No cars yet.</p>');
+}
+
+// ---------- reports ----------
+function renderReports() {
+  const t = today();
+  const months = [];
+  for (let i = 5; i >= 0; i--) { const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - i); months.push(isoDate(d).slice(0, 7)); }
+  const monthRows = months.map(m => {
+    const revenue = db.bookings.reduce((sum, b) => sum + (b.payments || []).filter(p => p.date.indexOf(m) === 0).reduce((x, p) => x + p.amount, 0), 0);
+    const booked = db.bookings.filter(b => b.date.indexOf(m) === 0 && b.status !== 'cancelled').length;
+    const done = db.bookings.filter(b => b.date.indexOf(m) === 0 && b.status === 'done').length;
+    const cancelled = db.bookings.filter(b => b.date.indexOf(m) === 0 && b.status === 'cancelled').length;
+    return '<tr><td>' + m + '</td><td>' + fmt(revenue) + '</td><td>' + booked + '</td><td>' + done + '</td><td>' + cancelled + '</td></tr>';
+  }).join('');
+  const pkgRows = Object.keys(PACKAGES).map(k => '<tr><td>' + esc(PACKAGES[k].name) + '</td><td>' + db.bookings.filter(b => b.pkg === k && b.status === 'done').length + '</td></tr>').join('');
+  const comm = {};
+  db.bookings.filter(b => b.status !== 'cancelled').forEach(b => { comm[b.community] = (comm[b.community] || 0) + 1; });
+  const topRows = Object.keys(comm).sort((a, b) => comm[b] - comm[a]).slice(0, 8).map(c => '<tr><td>' + esc(c) + '</td><td>' + comm[c] + '</td></tr>').join('');
+  const doneByCar = {};
+  db.bookings.filter(b => b.status === 'done').forEach(b => { const k = normReg(b.reg); doneByCar[k] = (doneByCar[k] || 0) + 1; });
+  const repeatCars = Object.keys(doneByCar).filter(k => doneByCar[k] >= 2).length;
+  const subs = {};
+  db.bookings.filter(b => b.subId && PLANS[b.plan] && b.subStart && b.status !== 'cancelled').forEach(b => { subs[b.subId] = b; });
+  const subList = Object.keys(subs).map(k => subs[k]);
+  const activeSubs = subList.filter(b => dayNum(subEnd(b)) >= dayNum(t)).length;
+  const endingSubs = subList.filter(b => { const g = dayNum(subEnd(b)) - dayNum(t); return g >= 0 && g <= 30; }).length;
+
+  document.getElementById('view').innerHTML =
+    '<h1>Reports</h1><p class="sub">Last six months, plus all-time figures for packages and communities.</p>' +
+    '<div class="cards">' +
+      '<div class="card"><span>Active subscriptions</span><b>' + activeSubs + '</b></div>' +
+      '<div class="card"><span>Ending within 30 days</span><b>' + endingSubs + '</b></div>' +
+      '<div class="card"><span>Cars with 2+ completed visits</span><b>' + repeatCars + '</b></div>' +
+    '</div>' +
+    '<div class="box"><h3>By month</h3><div class="wrap"><table><thead><tr><th>Month</th><th>Collected</th><th>Bookings</th><th>Completed</th><th>Cancelled</th></tr></thead><tbody>' + monthRows + '</tbody></table></div></div>' +
+    '<div class="grid2" style="margin-top:14px;">' +
+      '<div class="box" style="margin-top:0;"><h3>Completed visits by package</h3><table><tbody>' + pkgRows + '</tbody></table></div>' +
+      '<div class="box" style="margin-top:0;"><h3>Busiest communities</h3><table><tbody>' + (topRows || '<tr><td>No bookings yet</td></tr>') + '</tbody></table></div>' +
+    '</div>';
+}
+
+// ---------- availability and manual bookings ----------
+const ACTIVE_BOOKING = ['new', 'confirmed', 'paid', 'in_progress', 'done'];
+function slotCount(date, slot) { return db.bookings.filter(b => b.date === date && b.slot === slot && ACTIVE_BOOKING.includes(b.status)).length; }
+function dayAvailability(date) {
+  const used = SLOTS.reduce((sum, sl) => sum + Math.min(slotCount(date, sl), 2), 0);
+  const free = SLOTS.length * 2 - used;
+  const cls = free <= 0 ? 'red' : (free <= 3 ? 'yellow' : 'green');
+  const pending = db.bookings.filter(b => b.date === date && b.status === 'new').length;
+  return { free: free, cls: cls, pending: pending };
+}
+
+function renderAvailability() {
+  const first = new Date();
+  first.setHours(0, 0, 0, 0);
+  const offset = (first.getDay() + 6) % 7;
+  let cells = '';
+  for (let i = 0; i < offset; i++) cells += '<span></span>';
+  for (let i = 0; i < 45; i++) {
+    const d = new Date(first);
+    d.setDate(first.getDate() + i);
+    const iso = isoDate(d);
+    const a = dayAvailability(iso);
+    const label = a.cls === 'red' ? 'Fully booked' : (a.cls === 'yellow' ? 'Limited (' + a.free + ' left)' : 'Available (' + a.free + ' left)');
+    cells += '<button class="cal-day cal-' + a.cls + '" onclick="showDay(\'' + iso + '\')"><b>' + d.getDate() + '</b><small>' + d.toLocaleDateString('en-IN', { month: 'short' }) + '</small><span>' + label + '</span>' +
+      (a.pending ? '<em>' + a.pending + ' pending</em>' : '') + '</button>';
+  }
+  document.getElementById('view').innerHTML =
+    '<h1>Availability</h1>' +
+    '<p class="sub">Same colours as the website. Click a day to see its slots, or add a manual booking. Use Refresh requests first, so the latest website bookings are loaded.</p>' +
+    '<div class="cal-legend"><span><i class="dot g"></i>Available</span><span><i class="dot y"></i>Limited spaces</span><span><i class="dot r"></i>Fully booked</span></div>' +
+    '<div class="cal-head"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>' +
+    '<div class="cal-grid">' + cells + '</div>' +
+    '<div id="dayDetail" class="box"><p class="sub" style="margin:0;">Select a day to see its slots.</p></div>';
+}
+
+function showDay(iso) {
+  const rows = SLOTS.map(sl => {
+    const n = slotCount(iso, sl);
+    return '<tr><td>' + esc(sl) + '</td><td>' + n + ' of 2 booked</td><td>' + (n >= 2 ? 'Fully booked' : (2 - n) + ' left') + '</td></tr>';
+  }).join('');
+  const bookings = db.bookings.filter(b => b.date === iso && b.status !== 'cancelled').sort(sortByWhen).map(b =>
+    '<tr><td>' + esc(b.slot) + '</td><td>' + esc(b.name) + '</td><td>' + esc(b.reg) + '</td><td>' + badge(b.status) + '</td><td><button class="btn sm" onclick="openBooking(\'' + b.id + '\')">Open</button></td></tr>'
+  ).join('');
+  document.getElementById('dayDetail').innerHTML =
+    '<h3>' + niceDate(iso) + '</h3>' +
+    '<div class="wrap"><table><tbody>' + rows + '</tbody></table></div>' +
+    '<div class="row" style="margin-top:12px;"><button class="btn" onclick="openManual(\'' + iso + '\')">Manual booking for this day</button></div>' +
+    (bookings ? '<div class="wrap" style="margin-top:12px;"><table><thead><tr><th>Slot</th><th>Customer</th><th>Car</th><th>Status</th><th></th></tr></thead><tbody>' + bookings + '</tbody></table></div>' : '<p class="sub" style="margin-top:12px;">No bookings on this day yet.</p>');
+}
+
+function slotOptions(date) {
+  return SLOTS.map(sl => {
+    const n = date ? slotCount(date, sl) : 0;
+    return '<option value="' + esc(sl) + '"' + (n >= 2 ? ' disabled' : '') + '>' + esc(sl) + (n >= 2 ? ' (fully booked)' : ' (' + (2 - n) + ' left)') + '</option>';
+  }).join('');
+}
+
+function refreshManualSlots() {
+  document.getElementById('mslot').innerHTML = slotOptions(document.getElementById('mdate').value);
+}
+
+function openManual(date) {
+  const pkgOpts = Object.keys(PACKAGES).map(k => '<option value="' + k + '">' + esc(PACKAGES[k].name) + ' (' + fmt(PACKAGES[k].price) + ')</option>').join('');
+  document.getElementById('modal').innerHTML =
+    '<h2>Manual booking</h2>' +
+    '<p class="sub">For customers who call. The booking is confirmed straight away and uses one space, so the website and this calendar update.</p>' +
+    '<div class="grid2">' +
+      '<div><label for="mn">Customer name</label><input id="mn"></div>' +
+      '<div><label for="mp">Mobile number</label><input id="mp" inputmode="numeric"></div>' +
+      '<div><label for="mc">Address with flat or house number</label><input id="mc"></div>' +
+      '<div><label for="mreg">Car registration number</label><input id="mreg"></div>' +
+      '<div><label for="mpkg">Package</label><select id="mpkg">' + pkgOpts + '</select></div>' +
+      '<div><label for="mdate">Date</label><input id="mdate" type="date" value="' + date + '" min="' + earliestBookableDate() + '" onchange="refreshManualSlots()"></div>' +
+      '<div><label for="mslot">Time</label><select id="mslot">' + slotOptions(date) + '</select></div>' +
+      '<div style="grid-column:1/-1;"><label class="check-line"><input type="checkbox" id="mdis" style="width:auto;"> Interior disinfection (add INR 349)</label></div>' +
+      '<div style="grid-column:1/-1;"><label class="check-line"><input type="checkbox" id="mev" style="width:auto;"> Electric car (add EV Visual Check, INR 199)</label></div>' +
+      '<div style="grid-column:1/-1;"><label class="check-line"><input type="checkbox" id="msec" style="width:auto;" onchange="document.getElementById(\'mreg2wrap\').style.display=this.checked?\'\':\'none\'"> Second car at this address</label></div>' +
+      '<div id="mreg2wrap" style="grid-column:1/-1;display:none;"><label for="mreg2">Second car registration number</label><input id="mreg2"></div>' +
+      '<div style="grid-column:1/-1;"><label for="mnotes">Notes (optional)</label><textarea id="mnotes" rows="2"></textarea></div>' +
+    '</div>' +
+    '<p id="mErr" class="err"></p>' +
+    '<div class="row" style="justify-content:flex-end;margin-top:10px;"><button class="btn green" onclick="saveManual()">Confirm booking</button><button class="btn ghost" onclick="closeModal()">Cancel</button></div>';
+  document.getElementById('modalBg').classList.add('show');
+}
+
+function saveManual() {
+  const v = id => document.getElementById(id).value.trim();
+  const err = document.getElementById('mErr');
+  const name = v('mn'), phone = v('mp').replace(/\D/g, '').slice(-10), community = v('mc');
+  const car = '', reg = v('mreg'), pkg = v('mpkg'), date = v('mdate'), slot = v('mslot');
+  const hasSecond = document.getElementById('msec').checked, reg2 = hasSecond ? v('mreg2') : '';
+  if (hasSecond && !reg2) { err.textContent = 'Enter the second car registration, or untick Second car.'; return; }
+  if (hasSecond && normReg(reg2) === normReg(reg)) { err.textContent = 'The two car registration numbers are the same. Please check them.'; return; }
+  if (!name || phone.length !== 10 || !community || !reg || !date || !slot) {
+    err.textContent = 'Please fill in every field, with a 10-digit mobile number.';
+    return;
+  }
+  if (slotCount(date, slot) >= 2) {
+    err.textContent = 'That slot is already fully booked. Choose another time.';
+    return;
+  }
+  const regs = [normReg(reg)].concat(hasSecond ? [normReg(reg2)] : []);
+  const clash = db.bookings.find(x => x.status !== 'cancelled' && Math.abs(dayNum(x.date) - dayNum(date)) < 7 &&
+    regs.some(r => normReg(x.reg) === r || normReg(x.reg2) === r));
+  if (clash) {
+    err.textContent = 'This car already has a visit within 7 days (' + niceDate(clash.date) + '). Check that booking first.';
+    return;
+  }
+  const notes = v('mnotes');
+  const b = mk({ name: name, phone: phone, community: community, car: car, reg: reg, reg2: reg2, secondCar: hasSecond,
+    pkg: pkg, date: date, slot: slot, disinfect: document.getElementById('mdis').checked, ev: document.getElementById('mev').checked,
+    status: 'confirmed', notes: notes ? 'Manual booking: ' + notes : 'Manual booking (phone call)' });
+  log(b, 'Manual booking added by admin');
+  db.bookings.push(b);
+  save();
+  if (paymentInfo(b) && confirm('Send the booking details and payment instructions to the customer on WhatsApp now?')) {
+    window.open(waLink(b.phone, bookingReceivedText(b)), '_blank');
+    log(b, 'Booking details and payment instructions sent');
+    save();
+  } else if (!paymentInfo(b)) {
+    alert('Set your UPI ID at the top of the admin file, or paste a payment link on the booking, before sending the details.');
+  }
+  closeModal();
+}
+
+// ---------- booking details and payment, then final confirmation ----------
+function paymentInfo(b) {
+  if (b.paymentLink) return 'Payment link: ' + b.paymentLink;
+  if (CONFIG.upiId) return 'Payment link: ' + CONFIG.upiId;
+  return '';
+}
+
+// Sent when the slot is held: booking details and how to pay. Not a confirmation.
+function bookingDetailsLines(b) {
+  return 'Date: ' + niceDate(b.date) + '\n' +
+    'Time: ' + b.slot + '\n' +
+    'Package: ' + PACKAGES[b.pkg].name + (b.secondCar ? ' + second car' : '') + (b.ev ? ' + EV visual check' : '') + (b.disinfect ? ' + interior disinfection' : '') + '\n' +
+    'Registration: ' + b.reg + (b.reg2 ? '\nSecond car: ' + b.reg2 : '') + '\n' +
+    'Community: ' + b.community + '\n' +
+    'Total: ' + fmt(total(b)) + ' incl. GST';
+}
+
+// Sent when the slot is held: booking details and how to pay. Not a confirmation.
+function bookingReceivedText(b) {
+  return 'Hi ' + b.name + ', thank you for booking with ' + CONFIG.businessName + '.\n\n' +
+    'Booking details:\n' + bookingDetailsLines(b) + '\n\n' +
+    'Please make the payment using the details below:\n' + paymentInfo(b) + '\n\n' +
+    'We will send your booking confirmation once payment is received.\n\n' +
+    'Thank you\n' + CONFIG.website;
+}
+
+// Sent when the date or slot is changed by the office.
+function rescheduleText(b) {
+  return 'Hi ' + b.name + ', thank you for booking with ' + CONFIG.businessName + '.\n\n' +
+    'Your new booking details:\n' + bookingDetailsLines(b) + '\n\n' +
+    'Please make the payment using the details below:\n' + paymentInfo(b) + '\n\n' +
+    'We will send your booking confirmation once payment is received.\n\n' +
+    'Thank you\n' + CONFIG.website;
+}
+
+// Sent only after payment is received: the final confirmation.
+function confirmationText(b) {
+  return 'Hi ' + b.name + ', payment received. Your booking with ' + CONFIG.businessName + ' is confirmed.\n\n' +
+    'Date: ' + niceDate(b.date) + '\n' +
+    'Time: ' + b.slot + '\n' +
+    'Package: ' + PACKAGES[b.pkg].name + (b.secondCar ? ' + second car' : '') + (b.ev ? ' + EV visual check' : '') + (b.disinfect ? ' + interior disinfection' : '') + '\n' +
+    'Registration: ' + b.reg + (b.reg2 ? '\nSecond car: ' + b.reg2 : '') + '\n' +
+    'Community: ' + b.community + '\n' +
+    'Total paid: ' + fmt(total(b)) + ' incl. GST\n\n' +
+    'Please keep the car accessible for the technician. To cancel or reschedule, send us a message on WhatsApp on ' + CONFIG.businessPhone + '. Free until the day before your booking. On the day, cancelling or rescheduling costs 10% of the booking.\n\n' +
+    'Thank you\n' + CONFIG.website;
+}
+
+function paymentLinkBox(b) {
+  return '<div class="box"><h3>Payment link (optional)</h3><div class="row"><input id="plink" placeholder="Paste a payment link, or leave blank to use your UPI ID" value="' + esc(b.paymentLink) + '" style="flex:1;"></div></div>';
+}
+
+function bookingReceivedBox(b) {
+  return '<div class="box"><h3>Booking details and payment</h3>' +
+    '<p class="sub" style="margin:0 0 8px;font-size:12px;">Sent when the slot is held. The customer pays, then you send the confirmation.</p>' +
+    '<textarea readonly rows="11">' + esc(bookingReceivedText(b)) + '</textarea>' +
+    '<div class="row" style="margin-top:8px;"><button class="btn wa" onclick="sendBookingDetails()">Send on WhatsApp</button></div></div>';
+}
+
+function confirmationBox(b) {
+  return '<div class="box"><h3>Booking confirmation</h3>' +
+    '<p class="sub" style="margin:0 0 8px;font-size:12px;">Send this after payment is received.</p>' +
+    '<textarea readonly rows="11">' + esc(confirmationText(b)) + '</textarea>' +
+    '<div class="row" style="margin-top:8px;"><button class="btn wa" onclick="sendConfirmation()">Send on WhatsApp</button></div>' +
+  '</div>';
+}
+
+function sendBookingDetails() {
+  const b = getBooking();
+  if (!paymentInfo(b)) { alert('Paste a payment link, or set your UPI ID at the top of the admin file.'); return; }
+  window.open(waLink(b.phone, bookingReceivedText(b)), '_blank');
+  log(b, 'Booking details and payment instructions sent');
+  save();
+  renderModal();
+}
+
+function sendConfirmation() {
+  const b = getBooking();
+  window.open(waLink(b.phone, confirmationText(b)), '_blank');
+  log(b, 'Booking confirmation sent to customer');
+  save();
+  renderModal();
+}
+
+// ---------- change date or slot ----------
+function rescheduleBox(b) {
+  return '<div class="box"><h3>Change date or slot</h3>' +
+    '<div class="grid2" style="margin:0;">' +
+      '<div><label for="rdate">New date</label><input id="rdate" type="date" value="' + esc(b.date) + '" min="' + today() + '"></div>' +
+      '<div><label for="rslot">New slot</label><select id="rslot">' +
+        SLOTS.map(sl => '<option' + (sl === b.slot ? ' selected' : '') + '>' + esc(sl) + '</option>').join('') +
+      '</select></div>' +
+    '</div>' +
+    '<div class="row" style="margin-top:8px;"><button class="btn" onclick="changeSlot()">Save new date and slot</button></div>' +
+    '<p class="sub" style="font-size:12px;margin:8px 0 0;">A slot already holding 2 confirmed bookings needs your confirmation to override.</p>' +
+  '</div>';
+}
+
+function changeSlot() {
+  const b = getBooking();
+  const date = document.getElementById('rdate').value;
+  const slot = document.getElementById('rslot').value;
+  if (!date) { alert('Choose a new date.'); return; }
+  if (date === b.date && slot === b.slot) { alert('The date and slot are unchanged.'); return; }
+  const onTheDay = b.date <= today();
+  const rescheduleCharge = Math.round(total(b) * 0.10);
+  if (onTheDay && !confirm('Rescheduling on the day costs 10% of the booking (' + fmt(rescheduleCharge) + '). Continue and log the charge?')) return;
+  const taken = db.bookings.filter(x => x.id !== b.id && x.date === date && x.slot === slot &&
+    ['new', 'confirmed', 'paid', 'in_progress', 'done'].includes(x.status)).length;
+  if (taken >= 2 && !confirm('That slot already has 2 confirmed bookings. Move this booking there anyway?')) return;
+  const before = niceDate(b.date) + ' ' + b.slot;
+  b.date = date;
+  b.slot = slot;
+  log(b, 'Date or slot changed from ' + before + ' to ' + niceDate(date) + ' ' + slot);
+  if (onTheDay) log(b, 'Same-day reschedule: 10% charge of ' + fmt(rescheduleCharge) + ' applies');
+  save();
+  if (confirm('Message the customer about the new date and slot?')) {
+    window.open(waLink(b.phone, rescheduleText(b)), '_blank');
+  }
+  renderModal();
+  render();
+}
+
+// ---------- backend sync ----------
+function backendKey() { try { return sessionStorage.getItem('runvel-key') || ''; } catch (e) { return ''; } }
+
+function pushBooking(b) {
+  if (b.sample || !CONFIG.backendUrl) return;
+  const row = {
+    id: b.id, createdAt: b.createdAt, status: b.status, name: b.name, phone: b.phone,
+    community: b.community, car: b.car, reg: b.reg, pkg: b.pkg, secondCar: b.secondCar,
+    ev: b.ev, date: b.date, slot: b.slot, notes: b.notes, paymentLink: b.paymentLink, reg2: b.reg2 || '', plan: b.plan || 'none', subId: b.subId || '', subStart: b.subStart || '', disinfect: !!b.disinfect
+  };
+  fetch(CONFIG.backendUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify({ action: 'update', key: backendKey(), booking: row })
+  }).catch(() => {});
+}
+
+// Sheets may return dates as full timestamps; turn them back into YYYY-MM-DD.
+function dateFromSheet(v) {
+  if (!v) return '';
+  const s = String(v);
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  const d = new Date(s);
+  return isNaN(d) ? '' : isoDate(d);
+}
+
+async function syncFromSheet(showMessage) {
+  if (!CONFIG.backendUrl) return;
+  try {
+    const res = await fetch(CONFIG.backendUrl + '?key=' + encodeURIComponent(backendKey()));
+    const data = await res.json();
+    if (!data.ok) {
+      if (showMessage) alert('Could not load requests: ' + (data.error || 'unknown error'));
+      return;
+    }
+    let added = 0;
+    data.bookings.forEach(r => {
+      if (db.bookings.some(b => b.id === r.id)) return;
+      const b = mk({
+        id: r.id, createdAt: r.createdAt, status: r.status || 'new', name: r.name,
+        phone: String(r.phone || '').replace(/\D/g, '').slice(-10), community: r.community,
+        car: r.car, reg: r.reg, reg2: r.reg2 || '', pkg: r.pkg, secondCar: !!r.secondCar, ev: !!r.ev, disinfect: !!r.disinfect, plan: r.plan || 'none', subId: r.subId || '', subStart: dateFromSheet(r.subStart),
+        date: dateFromSheet(r.date), slot: r.slot, notes: r.notes || '', paymentLink: r.paymentLink || ''
+      });
+      log(b, 'Request received from website');
+      db.bookings.push(b);
+      added++;
+    });
+    save();
+    render();
+    if (showMessage) alert(added ? added + ' new request(s) added.' : 'No new requests.');
+  } catch (e) {
+    if (showMessage) alert('Could not reach the backend. Check the URL and your connection.');
+  }
+}
+
+// ---------- start ----------
+(function init() {
+  try { if (sessionStorage.getItem('runvel-admin-ok') === '1') showApp(); } catch (e) {}
+  if (!db.bookings.length) { db.bookings = sampleBookings(); save(); }
+})();
+</script>
+</body>
+</html>

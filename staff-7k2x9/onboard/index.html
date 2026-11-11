@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en-IN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Book your check | Carindicare</title>
+<style>
+  :root { --purple:#6b3fa0; --deep:#52307a; --ink:#22262d; --muted:#646b75; --line:#d8dee6; --paper:#f6f5f2; --red:#b3261e; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: Poppins, system-ui, Arial, sans-serif; background: var(--paper); color: var(--ink); font-size: 16px; }
+  header { background: var(--ink); color:#fff; padding: 14px 18px; display:flex; justify-content:space-between; align-items:center; }
+  header b { font-size: 19px; }
+  header span { font-size: 14px; color:#c9d0da; }
+  main { max-width: 980px; margin: 0 auto; padding: 12px; display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:12px; padding:14px; }
+  h3 { margin: 0 0 8px; font-size: 14px; color: var(--deep); text-transform: uppercase; letter-spacing: .4px; }
+  label { display:block; font-size: 14px; color: var(--muted); margin-bottom: 4px; }
+  input { width:100%; padding: 13px 12px; border:1px solid #cfd4db; border-radius:9px; font: inherit; font-size: 17px; background:#fff; }
+  .field { margin-bottom: 10px; }
+  .pkgs { display:grid; grid-template-columns: 1fr 1fr 1fr; gap:8px; }
+  .pkg, .chip, .slot { border:2px solid var(--line); background:#fff; border-radius:11px; padding:12px 8px; text-align:center; cursor:pointer; font: inherit; color: var(--ink); }
+  .pkg b { display:block; font-size: 16px; }
+  .pkg small { display:block; color: var(--muted); font-size: 13px; margin-top: 3px; }
+  .pkg.on, .slot.on, .chip.on { border-color: var(--purple); background:#f4f0fa; box-shadow: 0 0 0 1px var(--purple) inset; }
+  .addons { display:grid; gap:9px; }
+  .addons label { display:flex; align-items:center; gap:10px; color: var(--ink); font-size: 16px; margin:0; cursor:pointer; }
+  .addons input[type=checkbox] { width: 22px; height: 22px; }
+  .days { display:grid; grid-template-columns: repeat(7, 1fr); gap:6px; }
+  .chip { padding: 8px 2px; font-size: 13px; line-height:1.25; }
+  .chip b { display:block; font-size: 17px; }
+  .chip.g { background:#eef7f1; border-color:#9fd3b5; }
+  .chip.y { background:#fff6d6; border-color:#e2c25a; }
+  .chip.r { background:#fdecea; border-color:#e7a9a3; color:#7a1f18; cursor:not-allowed; }
+  .chip.g.on, .chip.y.on { border-color: var(--purple); }
+  .slots { display:grid; grid-template-columns: 1fr 1fr 1fr; gap:8px; margin-top:10px; }
+  .slot { font-size: 15px; padding: 12px 6px; }
+  .slot:disabled { opacity:.45; cursor:not-allowed; }
+  .slot small { font-size: 12px; color: var(--muted); }
+  .boothbox { background:#fff6d6; border:1px solid #c99a00; border-radius:10px; padding:12px; margin-bottom:10px; }
+  .boothbox h3 { color:#6b5300; }
+  .boothbox .tick { display:flex; gap:10px; align-items:center; font-size:15px; color:var(--ink); margin:0; }
+  .boothbox .tick input { width:22px; height:22px; }
+  .row2 { display:grid; grid-template-columns: 1fr 1fr; gap:8px; }
+  .row2 select { width:100%; padding:12px; border:1px solid #cfd4db; border-radius:9px; font:inherit; font-size:16px; background:#fff; }
+  .total { display:flex; justify-content:space-between; align-items:center; margin-top: 12px; font-size: 16px; font-weight:600; }
+  .total span { font-size: 24px; color: var(--deep); }
+  .go { width:100%; margin-top: 12px; background: var(--purple); color:#fff; border:0; border-radius: 11px; padding: 16px; font: inherit; font-weight:700; font-size: 18px; cursor:pointer; }
+  .go:disabled { background:#b7a7cf; }
+  .note { font-size: 13px; color: var(--muted); margin-top: 6px; }
+  .full { grid-column: 1 / -1; }
+  .err { color: var(--red); font-size: 15px; min-height: 18px; margin-top: 8px; }
+  .done { display:none; text-align:center; padding: 40px 18px; }
+  .done.show { display:block; }
+  .done h2 { font-size: 28px; margin: 0 0 10px; color: var(--deep); }
+  .done p { font-size: 18px; line-height: 1.5; }
+  @media (max-width: 720px) {
+    main { grid-template-columns: 1fr; }
+    .days { grid-template-columns: repeat(4, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <b>Carindicare · Book your check</b>
+  <span id="clock"></span>
+</header>
+
+<main id="form">
+  <section class="card">
+    <h3>Your details</h3>
+    <div class="field"><label for="name">Your name</label><input id="name" autocomplete="off"></div>
+    <div class="field"><label for="phone">WhatsApp number</label><input id="phone" inputmode="numeric" maxlength="10" placeholder="10 digits"></div>
+    <div class="field"><label for="address">Address with flat or house number</label><input id="address" autocomplete="off"></div>
+    <div class="field"><label for="reg">Car number (optional)</label><input id="reg" autocomplete="off" style="text-transform:uppercase"></div>
+  </section>
+
+  <section class="card">
+    <h3>Package</h3>
+    <div class="pkgs">
+      <button class="pkg" data-pkg="quick"><b>Basic</b><small>₹399 · 20 min</small></button>
+      <button class="pkg on" data-pkg="complete"><b>Standard</b><small>₹799 · 40 min</small></button>
+      <button class="pkg" data-pkg="family"><b>Family</b><small>₹1,199 · 60 min</small><small style="color:#17794a;font-weight:600;">+ free disinfection</small></button>
+    </div>
+    <h3 style="margin-top:14px;">Add-ons</h3>
+    <div class="addons">
+      <label id="disinfectLabel"><input type="checkbox" id="disinfect"> <span id="disinfectText">Interior disinfection (+₹349)</span></label>
+      <label><input type="checkbox" id="secondCar" onchange="document.getElementById('reg2wrap').style.display=this.checked?'':'none'"> Second car at this address</label>
+      <div id="reg2wrap" style="display:none;" class="field"><input id="reg2" placeholder="Second car number (optional)" style="text-transform:uppercase"></div>
+      <label><input type="checkbox" id="ev"> Electric car visual check (+₹199)</label>
+    </div>
+  </section>
+
+  <section class="card full">
+    <h3>Choose a date and time</h3>
+    <div class="days" id="days"></div>
+    <div class="slots" id="slots"></div>
+  </section>
+
+  <section class="card full">
+    <div class="boothbox">
+      <h3>Staff only: payment at the stand</h3>
+      <label class="tick"><input type="checkbox" id="paidBooth" onchange="document.getElementById('boothFields').style.display=this.checked?'':'none'"> Customer has paid, and I have seen the payment</label>
+      <div id="boothFields" style="display:none;">
+        <div class="row2">
+          <div><label for="payMethod">How they paid</label><select id="payMethod"><option>UPI</option><option>Cash</option></select></div>
+          <div><label for="staffName">Your name</label><input id="staffName" autocomplete="off"></div>
+        </div>
+        <div class="field" style="margin-top:8px;"><label for="location">Event or location</label><input id="location" autocomplete="off"></div>
+      </div>
+    </div>
+    <div class="total"><div>Total incl. GST</div><span id="total">₹799</span></div>
+    <div class="err" id="err"></div>
+    <button class="go" id="go" onclick="book()">Book now</button>
+    <div class="note">We will message you on WhatsApp with how to pay. Your booking is confirmed once payment is received.</div>
+  </section>
+</main>
+
+<div class="card done" id="done">
+  <h2>Thank you</h2>
+  <p id="doneText"></p>
+  <p>We will message you on WhatsApp shortly with how to pay.</p>
+</div>
+
+<script>
+const BACKEND_URL = "https://script.google.com/macros/s/AKfycbxIQ8B9_4st748s9WQqB7rEKMfpGvy1jVgguOjB9TeUjKL_J_zQQxNPQ2MBd8LHysI8/exec";
+const PACKAGES = {
+  quick:    { name: "Basic",         price: 399,  second: 199 },
+  complete: { name: "Standard",      price: 799,  second: 399 },
+  family:   { name: "Family & Long Drive", price: 1199, second: 399 }
+};
+const EV_PRICE = 199, DISINFECT_PRICE = 349;
+const SLOTS = ["Morning, 9 am to 12 pm", "Afternoon, 12 pm to 4 pm", "Evening, 4 pm to 7 pm"];
+const SLOT_HOURS = [9, 12, 16];
+const CAPACITY = 2, DAYS_SHOWN = 14, RESET_AFTER_MS = 25000;
+
+let pkg = "complete", date = "", slot = "", availability = {};
+
+const pad = n => String(n).padStart(2, "0");
+const isoOf = d => d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+const fmt = n => "₹" + Math.round(n).toLocaleString("en-IN");
+const earliest = () => { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() + 2); return d; };
+const booked = (d, s) => (availability[d] && availability[d][s]) || 0;
+function niceDate(iso) { return new Date(iso + "T00:00").toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" }); }
+function dayClass(iso) {
+  const used = SLOTS.reduce((sum, s) => sum + Math.min(booked(iso, s), CAPACITY), 0);
+  const free = SLOTS.length * CAPACITY - used;
+  return free <= 0 ? "r" : (free <= 3 ? "y" : "g");
+}
+function slotClosed(iso, i) {
+  const start = new Date(iso + "T00:00"); start.setHours(SLOT_HOURS[i]);
+  return start - new Date() < 2 * 60 * 60 * 1000;
+}
+function total() {
+  const p = PACKAGES[pkg];
+  return p.price + (document.getElementById("secondCar").checked ? p.second : 0)
+    + (document.getElementById("ev").checked ? EV_PRICE : 0)
+    + (document.getElementById("disinfect").checked && pkg !== "family" ? DISINFECT_PRICE : 0);
+}
+function refreshTotal() { document.getElementById("total").textContent = fmt(total()); }
+
+function renderDays() {
+  const first = earliest();
+  let html = "";
+  for (let i = 0; i < DAYS_SHOWN; i++) {
+    const d = new Date(first); d.setDate(first.getDate() + i);
+    const iso = isoOf(d), c = dayClass(iso);
+    html += '<button class="chip ' + c + (iso === date ? " on" : "") + '"' + (c === "r" ? " disabled" : "") +
+      ' onclick="pickDate(\'' + iso + '\')"><b>' + d.getDate() + '</b>' + d.toLocaleDateString("en-IN", { weekday: "short", month: "short" }) + '</button>';
+  }
+  document.getElementById("days").innerHTML = html;
+}
+function renderSlots() {
+  const box = document.getElementById("slots");
+  if (!date) { box.innerHTML = '<div class="note" style="grid-column:1/-1">Tap a date to see the times.</div>'; return; }
+  box.innerHTML = SLOTS.map((name, i) => {
+    const full = booked(date, name) >= CAPACITY, closed = slotClosed(date, i);
+    const short = ["Morning", "Afternoon", "Evening"][i];
+    return '<button class="slot' + (slot === name ? " on" : "") + '"' + (full || closed ? " disabled" : "") +
+      ' onclick="pickSlot(' + i + ')">' + short + '<br><small>' + (full ? "Full" : closed ? "Not available" : "Free") + '</small></button>';
+  }).join("");
+}
+function pickDate(iso) {
+  date = iso;
+  const firstOpen = SLOTS.findIndex((s, i) => booked(iso, s) < CAPACITY && !slotClosed(iso, i));
+  slot = firstOpen >= 0 ? SLOTS[firstOpen] : "";
+  renderDays(); renderSlots();
+}
+function pickSlot(i) { slot = SLOTS[i]; renderSlots(); }
+
+// Family & Long Drive includes interior disinfection free (worth INR 350).
+function applyPackageRules() {
+  const box = document.getElementById("disinfect"), text = document.getElementById("disinfectText");
+  if (pkg === "family") {
+    box.checked = true; box.disabled = true;
+    text.textContent = "Interior disinfection: free with Family & Long Drive (worth ₹350)";
+  } else {
+    if (box.disabled) box.checked = false;
+    box.disabled = false;
+    text.textContent = "Interior disinfection (+₹349)";
+  }
+}
+document.querySelectorAll(".pkg").forEach(b => b.addEventListener("click", () => {
+  pkg = b.dataset.pkg;
+  document.querySelectorAll(".pkg").forEach(x => x.classList.toggle("on", x === b));
+  applyPackageRules();
+  refreshTotal();
+}));
+["disinfect", "secondCar", "ev"].forEach(id => document.getElementById(id).addEventListener("change", refreshTotal));
+
+async function loadAvailability() {
+  try {
+    const res = await fetch(BACKEND_URL + "?action=availability");
+    const data = await res.json();
+    if (data.ok) availability = data.counts || {};
+  } catch (e) { availability = {}; }
+  renderDays(); renderSlots();
+}
+
+function fail(msg) { document.getElementById("err").textContent = msg; }
+
+async function book() {
+  fail("");
+  const v = id => document.getElementById(id).value.trim();
+  const phone = v("phone").replace(/\D/g, "").slice(-10);
+  const secondOn = document.getElementById("secondCar").checked;
+  const body = {
+    name: v("name"), phone: phone, community: v("address"),
+    car: "", reg: v("reg").toUpperCase(), reg2: secondOn ? v("reg2").toUpperCase() : "",
+    pkg: pkg, date: date, slot: slot, secondCar: secondOn,
+    ev: document.getElementById("ev").checked, disinfect: document.getElementById("disinfect").checked,
+    plan: "none", notes: "Booked at the stand"
+  };
+  const paid = document.getElementById("paidBooth").checked;
+  if (paid) {
+    const staff = v("staffName"), where = v("location");
+    if (!staff) return fail("Staff: please enter your name.");
+    const stamp = new Date().toLocaleString("en-IN", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+    body.notes = "PAID at stand: " + document.getElementById("payMethod").value + ", proof seen by " + staff +
+      (where ? ", " + where : "") + ", " + stamp;
+    try { localStorage.setItem("booth-location", where); } catch (e) {}
+  }
+  if (!body.name) return fail("Please enter your name.");
+  if (phone.length !== 10) return fail("Please enter a 10-digit WhatsApp number.");
+  if (!body.community) return fail("Please enter your address with flat or house number.");
+  if (!date) return fail("Please choose a date.");
+  if (!slot) return fail("Please choose a time.");
+  if (secondOn && body.reg2 && body.reg2 === body.reg) return fail("The two car numbers are the same.");
+
+  const go = document.getElementById("go");
+  go.disabled = true; go.textContent = "Booking...";
+  try {
+    const res = await fetch(BACKEND_URL, { method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify(body) });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error || "We could not take this booking. Please try another time or call us on WhatsApp.");
+    document.getElementById("doneText").textContent = "Thank you, " + body.name + ". Your request for " + niceDate(date) + " (" + slot.split(",")[0] + ") is with us.";
+    document.getElementById("form").style.display = "none";
+    document.getElementById("done").classList.add("show");
+    setTimeout(resetForm, RESET_AFTER_MS);
+  } catch (err) {
+    fail(err.message || "Something went wrong. Please try again.");
+  } finally {
+    go.disabled = false; go.textContent = "Book now";
+  }
+}
+
+function resetForm() {
+  ["name", "phone", "address", "reg", "reg2"].forEach(id => document.getElementById(id).value = "");
+  ["disinfect", "secondCar", "ev"].forEach(id => document.getElementById(id).checked = false);
+  document.getElementById("reg2wrap").style.display = "none";
+  document.getElementById("paidBooth").checked = false;
+  document.getElementById("boothFields").style.display = "none";
+  document.getElementById("payMethod").value = "UPI";
+  document.getElementById("staffName").value = "";
+  date = ""; slot = ""; pkg = "complete";
+  document.querySelectorAll(".pkg").forEach(x => x.classList.toggle("on", x.dataset.pkg === "complete"));
+  applyPackageRules();
+  refreshTotal(); renderDays(); renderSlots(); fail("");
+  document.getElementById("done").classList.remove("show");
+  document.getElementById("form").style.display = "";
+  loadAvailability();
+}
+
+try { document.getElementById("location").value = localStorage.getItem("booth-location") || ""; } catch (e) {}
+function tick() { document.getElementById("clock").textContent = new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" }); }
+tick(); setInterval(tick, 30000);
+applyPackageRules();
+refreshTotal();
+loadAvailability();
+setInterval(loadAvailability, 2 * 60 * 1000);
+</script>
+</body>
+</html>

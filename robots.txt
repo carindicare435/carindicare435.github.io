@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /staff-7k2x9/
+
+Sitemap: https://carindicare.com/sitemap.xml
