@@ -421,16 +421,67 @@ function quickRow(b) {
   '</tr>';
 }
 
+// Filters for the Quick checks tab. Kept in memory only, so they reset when the page reloads.
+const quickFilter = { status: '', from: '', to: '', slot: '', q: '' };
+
+function quickMatches(b) {
+  const f = quickFilter;
+  if (f.status && b.status !== f.status) return false;
+  if (f.from && !(b.date && b.date >= f.from)) return false;
+  if (f.to && !(b.date && b.date <= f.to)) return false;
+  if (f.slot && b.slot !== f.slot) return false;
+  // ignore case, spaces and punctuation: "b-204", "B 204" and "b204" all match "B-204"
+  const squash = v => String(v == null ? '' : v).toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
+  const needle = squash(f.q);
+  if (!needle) return true;
+  if ([b.name, b.community, b.reg].some(v => { const s = squash(v); return s !== '' && s.includes(needle); })) return true;
+  // phone numbers match on their digits only, when the search looks like a phone number
+  const raw = String(f.q).replace(/\s+/g, '');
+  const digits = raw.replace(/^\+91/, '').replace(/\D/g, ''); // stored numbers have no +91
+  const phone = String(b.phone == null ? '' : b.phone).replace(/\D/g, '');
+  return /^[\d+\-()]+$/.test(raw) && digits !== '' && phone !== '' && phone.includes(digits);
+}
+
+function quickShown() { return db.bookings.filter(b => isQuick(b) && quickMatches(b)).sort(sortByWhen); }
+
 function renderQuick() {
-  const list = db.bookings.filter(isQuick).sort(sortByWhen);
+  const f = quickFilter;
   document.getElementById('view').innerHTML =
     '<h1>Quick checks</h1>' +
     '<p class="sub">Bookings from the quick check page, sorted by date and slot. They also show in Today’s visits, Reminders and Availability, but not in the Dashboard, All bookings or Reports.</p>' +
-    '<div class="toolbar"><button class="btn sm ghost" onclick="exportCSV(true)">Export CSV</button></div>' +
+    '<div class="toolbar" style="align-items:flex-end;">' +
+      '<div><label for="qfStatus">Status</label><select id="qfStatus" onchange="setQuickFilter(\'status\', this.value)"><option value="">All</option>' +
+        Object.keys(STATUS).map(k => '<option value="' + k + '"' + (f.status === k ? ' selected' : '') + '>' + esc(STATUS[k]) + '</option>').join('') + '</select></div>' +
+      '<div><label for="qfFrom">Date from</label><input id="qfFrom" type="date" value="' + esc(f.from) + '" onchange="setQuickFilter(\'from\', this.value)"></div>' +
+      '<div><label for="qfTo">Date to</label><input id="qfTo" type="date" value="' + esc(f.to) + '" onchange="setQuickFilter(\'to\', this.value)"></div>' +
+      '<div><label for="qfSlot">Slot</label><select id="qfSlot" onchange="setQuickFilter(\'slot\', this.value)"><option value="">All</option>' +
+        SLOTS.map(s => '<option value="' + esc(s) + '"' + (f.slot === s ? ' selected' : '') + '>' + esc(s.split(',')[0]) + '</option>').join('') + '</select></div>' +
+      '<div><label for="qfQ">Search</label><input id="qfQ" placeholder="Name, phone, flat or car reg" value="' + esc(f.q) + '" oninput="setQuickFilter(\'q\', this.value)"></div>' +
+      '<button class="btn sm ghost" onclick="clearQuickFilters()">Clear filters</button>' +
+      '<button class="btn sm ghost" onclick="exportCSV(true)">Export CSV</button>' +
+    '</div>' +
+    '<div id="qcList"></div>';
+  drawQuickList();
+}
+
+function drawQuickList() {
+  const box = document.getElementById('qcList');
+  if (!box) return;
+  const all = db.bookings.filter(isQuick).length;
+  const list = quickShown();
+  if (!all) { box.innerHTML = '<p class="sub">No quick checks yet</p>'; return; }
+  box.innerHTML = '<p class="sub">Showing ' + list.length + ' of ' + all + ' quick checks</p>' +
     (list.length
       ? '<div class="wrap"><table><thead><tr><th>Date</th><th>Slot</th><th>Name</th><th>Phone</th><th>Flat or house</th><th>Car reg</th><th>Status</th><th>Created</th><th></th></tr></thead><tbody>' +
           list.map(quickRow).join('') + '</tbody></table></div>'
-      : '<p class="sub">No quick checks yet</p>');
+      : '<p class="sub">No quick checks match these filters</p>');
+}
+
+function setQuickFilter(key, value) { quickFilter[key] = value || ''; drawQuickList(); }
+
+function clearQuickFilters() {
+  Object.keys(quickFilter).forEach(k => { quickFilter[k] = ''; });
+  renderQuick();
 }
 
 // ---------- booking detail ----------
@@ -730,10 +781,10 @@ function parseWA(text) {
 }
 
 // ---------- export and housekeeping ----------
-// The sidebar button exports the main bookings; the Quick checks tab exports quick checks only.
+// The sidebar button exports the main bookings; the Quick checks tab exports the quick checks its filters show.
 function exportCSV(quickOnly) {
   const head = ['Date', 'Slot', 'Name', 'Phone', 'Community', 'Car', 'Registration', 'Package', 'Second car', 'EV check', 'Total', 'Paid', 'Status'];
-  const rows = db.bookings.filter(b => quickOnly ? isQuick(b) : !isQuick(b)).sort(sortByWhen).map(b => [b.date, b.slot, b.name, b.phone, b.community, b.car, b.reg, pkgInfo(b).name, b.secondCar ? 'Yes' : 'No', b.ev ? 'Yes' : 'No', total(b), paidSum(b), STATUS[b.status]]);
+  const rows = (quickOnly ? quickShown() : db.bookings.filter(b => !isQuick(b)).sort(sortByWhen)).map(b => [b.date, b.slot, b.name, b.phone, b.community, b.car, b.reg, pkgInfo(b).name, b.secondCar ? 'Yes' : 'No', b.ev ? 'Yes' : 'No', total(b), paidSum(b), STATUS[b.status]]);
   const csv = [head, ...rows].map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n');
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
