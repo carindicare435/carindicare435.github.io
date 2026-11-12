@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Quick car health check, ₹250 | Carindicare</title>
+<meta name="description" content="Five quick checks for your car at your home in Hyderabad for ₹250.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* Colours, type, header, buttons and footer: same as the main page (index.html) */
+  :root {
+    --ink: #171a1f;
+    --graphite: #22262d;
+    --graphite-2: #2c313a;
+    --accent: #6b3fa0;
+    --accent-dark: #52307a;
+    --green: #1e8a54;
+    --paper: #f6f5f2;
+    --line: #e4e2dd;
+    --muted: #646b75;
+    --white: #ffffff;
+    --tint-green: #eef7f1;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    color: var(--ink);
+    background: var(--white);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; }
+  img { max-width: 100%; display: block; }
+  .container { max-width: 1180px; margin: 0 auto; padding: 0 20px; }
+  h1, h2, h3, h4 { margin: 0; line-height: 1.2; letter-spacing: -0.01em; }
+  h2 { font-size: clamp(24px, 3vw, 32px); font-weight: 700; }
+  p { margin: 0 0 14px; }
+
+  .utility { background: var(--ink); color: #c9ced6; font-size: 13px; }
+  .utility .container { display: flex; justify-content: space-between; align-items: center; min-height: 36px; flex-wrap: wrap; gap: 6px 16px; padding-top: 6px; padding-bottom: 6px; }
+  .utility a { color: var(--white); text-decoration: none; font-weight: 600; }
+
+  header.site { background: var(--graphite); color: var(--white); position: sticky; top: 0; z-index: 40; }
+  header.site .container { display: flex; justify-content: space-between; align-items: center; height: 72px; gap: 20px; }
+  .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 700; font-size: 20px; letter-spacing: -0.01em; }
+  .city { font-size: 13px; color: #aab2bd; border-left: 1px solid #3a404a; padding-left: 14px; margin-left: 4px; }
+  nav.site { display: flex; align-items: center; gap: 26px; }
+  nav.site a { text-decoration: none; color: #d9dee6; font-size: 14px; font-weight: 500; }
+  nav.site a:hover { color: var(--white); }
+  @media (max-width: 960px) { nav.site a.hide-m { display: none; } .city { display: none; } }
+
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; border: 0; text-decoration: none; background: var(--accent); color: var(--white); font: inherit; font-weight: 600; font-size: 16px; padding: 14px 24px; border-radius: 8px; transition: background .15s; }
+  .btn:hover { background: var(--accent-dark); }
+  .btn.block { width: 100%; }
+  .btn.sm { padding: 9px 16px; font-size: 14px; }
+
+  footer { background: var(--ink); color: #aab2bd; padding: 60px 0 28px; font-size: 14px; }
+  footer .cols { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 32px; }
+  @media (max-width: 860px) { footer .cols { grid-template-columns: 1fr 1fr; } }
+  footer h4 { color: var(--white); font-size: 15px; font-weight: 600; margin: 0 0 14px; }
+  footer a { display: block; color: #aab2bd; text-decoration: none; margin-bottom: 8px; }
+  footer a:hover { color: var(--white); }
+  footer .legal { border-top: 1px solid #2d333c; margin-top: 40px; padding-top: 20px; font-size: 13px; color: #7f8794; }
+  footer .legal p { margin: 0 0 8px; }
+
+  .float-call {
+    position: fixed; right: 18px; bottom: 18px; z-index: 50;
+    background: linear-gradient(180deg, #8a5bcc 0%, #6b3fa0 55%, #52307a 100%); border: 1px solid rgba(255,255,255,0.35);
+    color: #fff; font-weight: 600; text-decoration: none;
+    padding: 14px 20px; border-radius: 999px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.35), 0 10px 26px rgba(82,48,122,0.6); font-size: 15px;
+  }
+
+  .wa-check { background: #fff6d6; border: 2px solid #c99a00; border-radius: 10px; padding: 12px 14px; font-size: 14px; color: #22262d; }
+
+  /* ---- Quick check page ---- */
+  .qc-hero { background: radial-gradient(ellipse at 72% 45%, #4a4f59 0%, #2c3038 45%, #17191e 100%); color: var(--white); padding: 44px 0 40px; position: relative; overflow: hidden; }
+  .qc-hero::before { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(90deg, rgba(255,255,255,0.025) 0 1px, transparent 1px 3px); pointer-events: none; }
+  .qc-hero .container { position: relative; z-index: 1; max-width: 760px; }
+  .qc-hero h1 { font-size: clamp(28px, 6.4vw, 44px); font-weight: 700; background: linear-gradient(180deg, #ffffff 0%, #d5dbe4 50%, #8f9aaa 100%); -webkit-background-clip: text; background-clip: text; color: transparent; text-wrap: balance; }
+  .qc-list { list-style: none; padding: 0; margin: 24px 0; display: grid; gap: 12px; }
+  .qc-list li { display: flex; gap: 12px; align-items: flex-start; font-size: 17px; color: #e4e9f0; }
+  .qc-list li svg { flex: 0 0 22px; margin-top: 3px; }
+  .qc-list svg circle { fill: var(--accent); }
+  .qc-price { font-size: 19px; font-weight: 600; color: var(--white); margin: 0 0 6px; }
+  .qc-note { color: #c9d0da; margin: 0; }
+
+  .qc-book { background: var(--paper); padding: 36px 0 56px; scroll-margin-top: 72px; /* clear the sticky header */ }
+  .qc-book .container { max-width: 760px; }
+  .qc-book h2 { margin-bottom: 18px; }
+  form.qc { background: var(--white); border-radius: 14px; padding: 24px; box-shadow: 0 8px 30px rgba(0,0,0,.06); display: grid; gap: 18px; }
+  form.qc label, form.qc .label { display: block; font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+  form.qc .opt { font-weight: 500; color: var(--muted); }
+  /* 16px text stops phones zooming in on focus; 54px height for easy tapping */
+  form.qc input { width: 100%; min-height: 54px; padding: 12px 14px; font: inherit; font-size: 16px; border: 1px solid #cfd4db; border-radius: 10px; background: var(--white); color: var(--ink); }
+  form.qc input:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+  .hint { font-size: 13px; color: var(--muted); margin: 6px 0 0; }
+
+  .days { display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 8px; }
+  .day, .slot { border: 2px solid var(--line); background: var(--white); border-radius: 10px; cursor: pointer; font: inherit; color: var(--ink); text-align: center; touch-action: manipulation; }
+  .day { min-height: 72px; padding: 8px 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.25; }
+  .day small { font-size: 12px; color: var(--muted); }
+  .day b { font-size: 20px; }
+  .day .st { font-size: 11px; font-weight: 600; color: var(--green); }
+  .day[disabled] .st { color: #b3261e; }
+  .slots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  @media (max-width: 380px) { .slots { grid-template-columns: 1fr; } }
+  .slot { min-height: 84px; padding: 10px 6px; font-size: 16px; font-weight: 600; line-height: 1.3; }
+  .slot small { display: block; font-size: 13px; font-weight: 500; color: var(--muted); }
+  .slot .st { color: var(--green); font-weight: 600; }
+  .slot[disabled] .st { color: #b3261e; }
+  .day[aria-pressed="true"], .slot[aria-pressed="true"] { border-color: var(--accent); background: #f4f0fa; box-shadow: 0 0 0 1px var(--accent) inset; }
+  .day[disabled], .slot[disabled] { background: #f3f2ef; cursor: not-allowed; opacity: .6; }
+  .empty { grid-column: 1 / -1; font-size: 14px; color: var(--muted); padding: 6px 0; margin: 0; }
+
+  #qc-submit { min-height: 56px; font-size: 17px; }
+  #qc-submit[disabled] { opacity: .65; cursor: progress; }
+  .err { color: #b3261e; font-weight: 600; font-size: 15px; margin: 0; }
+  .err:empty { display: none; }
+  #qc-done { display: none; margin-bottom: 18px; padding: 20px 22px; background: var(--tint-green); border: 2px solid var(--green); border-radius: 12px; font-size: 17px; font-weight: 600; }
+  #qc-done.show { display: block; }
+
+  /* keep the floating WhatsApp button from covering the form on phones */
+  @media (max-width: 760px) { body { padding-bottom: 76px; } }
+</style>
+</head>
+<body>
+
+<div class="utility">
+  <div class="container">
+    <span>WhatsApp <a id="top-wa" href="https://wa.me/917330704606">+91 7330704606</a></span>
+  </div>
+</div>
+
+<header class="site">
+  <div class="container">
+    <a class="brand" href="/"><img src="../img/carindicare-icon-grey.png" alt="" height="40"><span id="logo-name">Carindicare</span></a>
+    <span class="city">Hyderabad</span>
+    <nav class="site">
+      <a class="hide-m" href="/#how">How it works</a>
+      <a class="hide-m" href="/#checks">What we check</a>
+      <a class="hide-m" href="/#packages">Packages</a>
+      <a class="btn sm" href="#book">Book now</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="qc-hero">
+    <div class="container">
+      <h1>Quick car health check, ₹250</h1>
+      <ul class="qc-list">
+        <li><svg width="22" height="22" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="8.5"/><path d="M5 9.2l2.6 2.6L13 6.4" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Tyre pressure check</li>
+        <li><svg width="22" height="22" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="8.5"/><path d="M5 9.2l2.6 2.6L13 6.4" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Tread depth check</li>
+        <li><svg width="22" height="22" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="8.5"/><path d="M5 9.2l2.6 2.6L13 6.4" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Washer fluid top-up</li>
+        <li><svg width="22" height="22" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="8.5"/><path d="M5 9.2l2.6 2.6L13 6.4" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Brake pad visual check</li>
+        <li><svg width="22" height="22" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="8.5"/><path d="M5 9.2l2.6 2.6L13 6.4" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Clean air filter</li>
+      </ul>
+      <p class="qc-price">₹250 per car, covering all five checks.</p>
+      <p class="qc-note">We'll WhatsApp you a payment link to confirm your booking.</p>
+    </div>
+  </section>
+
+  <section class="qc-book" id="book">
+    <div class="container">
+      <h2>Book your quick check</h2>
+      <div id="qc-done" role="status" aria-live="polite"></div>
+      <form class="qc" id="qc-form" novalidate>
+        <div>
+          <label for="name">Name</label>
+          <input id="name" name="name" required maxlength="60" autocomplete="name">
+        </div>
+        <div>
+          <label for="phone">Phone number (WhatsApp)</label>
+          <input id="phone" name="phone" type="tel" required inputmode="numeric" maxlength="18" placeholder="10 digits" autocomplete="tel-national">
+        </div>
+        <div>
+          <label for="flat">Flat or house number</label>
+          <input id="flat" name="flat" required maxlength="120" autocomplete="address-line1">
+        </div>
+        <div>
+          <label for="reg">Car registration number</label>
+          <input id="reg" name="reg" maxlength="20" placeholder="e.g. TS 09 AB 1234" autocapitalize="characters" autocomplete="off">
+        </div>
+        <div>
+          <span class="label" id="date-label">Date</span>
+          <div class="days" id="days" role="group" aria-labelledby="date-label"></div>
+        </div>
+        <div>
+          <span class="label" id="slot-label">Time slot</span>
+          <div class="slots" id="slots" role="group" aria-labelledby="slot-label"></div>
+        </div>
+        <div class="wa-check">We'll WhatsApp you a payment link to confirm your booking. Please check your number before you submit.</div>
+        <p class="err" id="qc-err" role="alert"></p>
+        <button class="btn block" type="submit" id="qc-submit">Book quick check, ₹250</button>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="container">
+    <div class="cols">
+      <div>
+        <h4 id="footer-name">Carindicare</h4>
+        <p>Doorstep car health checks in gated communities across Hyderabad, Telangana.</p>
+        <p style="margin-top:12px;">Registered office: Plot No 5&amp;6, IDA, Phase 2, Patancheru, Hyderabad, Telangana 502319</p>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <a id="foot-wa" href="https://wa.me/917330704606">WhatsApp +91 7330704606</a>
+      </div>
+      <div>
+        <h4>Services</h4>
+        <a href="/#packages">Basic</a>
+        <a href="/#packages">Standard</a>
+        <a href="/#packages">Family &amp; Long Drive</a>
+        <a href="/#packages">EV Visual Check</a>
+      </div>
+      <div>
+        <h4>Information</h4>
+        <a href="/#sample">Sample report</a>
+        <a href="/#faq">Questions</a>
+      </div>
+    </div>
+    <div class="legal">
+      <p>© <span id="year"></span> <span id="copy-name">Carindicare</span>. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<a class="float-call" href="https://wa.me/917330704606" target="_blank" rel="noopener">WhatsApp us on 7330704606</a>
+
+<script>
+  // Same settings and backend as the main booking form (index.html).
+  const CONFIG = {
+    businessName: "Carindicare",
+    phoneDisplay: "+91 7330704606",
+    whatsappNumber: "917330704606"
+  };
+  const BACKEND_URL = 'https://script.google.com/macros/s/AKfycbxIQ8B9_4st748s9WQqB7rEKMfpGvy1jVgguOjB9TeUjKL_J_zQQxNPQ2MBd8LHysI8/exec';
+  const SLOT_NAMES = ["Morning, 9 am to 12 pm", "Afternoon, 12 pm to 4 pm", "Evening, 4 pm to 7 pm"];
+  const SLOT_START_HOUR = [9, 12, 16];
+  const SLOT_CAPACITY = 2;      // confirmed bookings allowed per slot, as on the main form
+  const DAYS_AHEAD = 14;        // today plus the next 14 days
+  const PRICE = 250;
+
+  let availability = {};
+  let selectedDate = "";
+  let selectedSlot = "";
+  let sending = false;
+
+  document.getElementById("year").textContent = new Date().getFullYear();
+
+  // Current date and time in India, whatever time zone the phone is set to.
+  function indiaNow() {
+    const parts = {};
+    new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Asia/Kolkata", year: "numeric", month: "2-digit", day: "2-digit",
+      hour: "2-digit", minute: "2-digit", hourCycle: "h23"
+    }).formatToParts(new Date()).forEach(p => { parts[p.type] = p.value; });
+    return { iso: parts.year + "-" + parts.month + "-" + parts.day, minutes: Number(parts.hour) * 60 + Number(parts.minute) };
+  }
+  function addDays(iso, n) {
+    const d = new Date(iso + "T00:00:00Z");
+    d.setUTCDate(d.getUTCDate() + n);
+    return d.toISOString().slice(0, 10);
+  }
+  function dayLabel(iso, opts) {
+    return new Date(iso + "T00:00:00Z").toLocaleDateString("en-IN", Object.assign({ timeZone: "UTC" }, opts));
+  }
+
+  const bookedFor = (date, slot) => (availability[date] && availability[date][slot]) || 0;
+  const slotFull = (date, i) => bookedFor(date, SLOT_NAMES[i]) >= SLOT_CAPACITY;
+  // A slot is hidden once its start time has passed today, in Indian time.
+  function slotPassed(date, i) {
+    const now = indiaNow();
+    return date < now.iso || (date === now.iso && now.minutes >= SLOT_START_HOUR[i] * 60);
+  }
+  const shownSlots = date => SLOT_NAMES.map((_, i) => i).filter(i => !slotPassed(date, i));
+  const openSlots = date => shownSlots(date).filter(i => !slotFull(date, i));
+
+  function renderDays() {
+    const today = indiaNow().iso;
+    const last = addDays(today, DAYS_AHEAD);
+    if (selectedDate && (selectedDate < today || selectedDate > last || !openSlots(selectedDate).length)) {
+      selectedDate = ""; selectedSlot = "";
+    }
+    let html = "";
+    for (let i = 0; i <= DAYS_AHEAD; i++) {
+      const iso = addDays(today, i);
+      const open = openSlots(iso).length > 0;
+      const status = open ? "Open" : (shownSlots(iso).length ? "Full" : "Closed");
+      const top = i === 0 ? "Today" : i === 1 ? "Tomorrow" : dayLabel(iso, { weekday: "short" });
+      html += '<button type="button" class="day" data-date="' + iso + '" aria-pressed="' + (iso === selectedDate) + '"' + (open ? "" : " disabled") + '>' +
+        '<small>' + top + '</small><b>' + dayLabel(iso, { day: "numeric" }) + '</b><small>' + dayLabel(iso, { month: "short" }) + '</small>' +
+        '<span class="st">' + status + '</span></button>';
+    }
+    document.getElementById("days").innerHTML = html;
+  }
+
+  function renderSlots() {
+    const box = document.getElementById("slots");
+    if (!selectedDate) { box.innerHTML = '<p class="empty">Choose a date to see the times.</p>'; return; }
+    if (selectedSlot) {
+      const i = SLOT_NAMES.indexOf(selectedSlot);
+      if (slotPassed(selectedDate, i) || slotFull(selectedDate, i)) selectedSlot = "";
+    }
+    const shown = shownSlots(selectedDate);
+    if (!shown.length) { box.innerHTML = '<p class="empty">No times left on this day.</p>'; return; }
+    box.innerHTML = shown.map(i => {
+      const name = SLOT_NAMES[i];
+      const [short, hours] = name.split(", ");
+      const full = slotFull(selectedDate, i);
+      return '<button type="button" class="slot" data-slot="' + i + '" aria-pressed="' + (name === selectedSlot) + '"' + (full ? " disabled" : "") + '>' +
+        short + '<small>' + hours + '</small><small class="st">' + (full ? "Full" : "Free") + '</small></button>';
+    }).join("");
+  }
+
+  document.getElementById("days").addEventListener("click", e => {
+    const b = e.target.closest("button.day");
+    if (!b || b.disabled) return;
+    selectedDate = b.dataset.date;
+    const first = openSlots(selectedDate)[0];
+    selectedSlot = first === undefined ? "" : SLOT_NAMES[first];
+    renderDays(); renderSlots();
+  });
+  document.getElementById("slots").addEventListener("click", e => {
+    const b = e.target.closest("button.slot");
+    if (!b || b.disabled) return;
+    selectedSlot = SLOT_NAMES[Number(b.dataset.slot)];
+    renderSlots();
+  });
+
+  async function loadAvailability() {
+    try {
+      const res = await fetch(BACKEND_URL + "?action=availability");
+      const data = await res.json();
+      if (data.ok) availability = data.counts || {};
+    } catch (e) {
+      // keep the last counts we had
+    }
+    renderDays(); renderSlots();
+  }
+
+  const form = document.getElementById("qc-form");
+  const submitBtn = document.getElementById("qc-submit");
+  const errBox = document.getElementById("qc-err");
+  const doneBox = document.getElementById("qc-done");
+
+  function showError(msg, fieldId) {
+    errBox.textContent = msg;
+    if (fieldId) document.getElementById(fieldId).focus();
+  }
+
+  // Accept 10 digits, also typed with +91, a leading 0, or spaces.
+  function phoneDigits(raw) {
+    let d = raw.replace(/\D/g, "");
+    if (d.length === 12 && d.startsWith("91")) d = d.slice(2);
+    if (d.length === 11 && d.startsWith("0")) d = d.slice(1);
+    return d;
+  }
+
+  form.addEventListener("submit", async e => {
+    e.preventDefault();
+    if (sending) return;
+    showError("");
+    doneBox.classList.remove("show");
+
+    const val = id => document.getElementById(id).value.trim();
+    const name = val("name");
+    const phone = phoneDigits(val("phone"));
+    const flat = val("flat");
+    const reg = val("reg").toUpperCase();
+
+    if (!name) return showError("Please enter your name.", "name");
+    if (!/^[0-9]{10}$/.test(phone)) return showError("Please enter a 10-digit WhatsApp number.", "phone");
+    if (!flat) return showError("Please enter your flat or house number.", "flat");
+    if (!selectedDate) return showError("Please choose a date.");
+    const slotIndex = SLOT_NAMES.indexOf(selectedSlot);
+    if (slotIndex < 0 || slotPassed(selectedDate, slotIndex) || slotFull(selectedDate, slotIndex)) {
+      renderDays(); renderSlots();
+      return showError("Please choose a time that is still free.");
+    }
+
+    const payload = {
+      name: name,
+      phone: phone,
+      community: flat,
+      car: "",
+      reg: reg,
+      reg2: "",
+      pkg: "Quick check ₹250",
+      plan: "none",
+      date: selectedDate,
+      slot: selectedSlot,
+      ev: false,
+      disinfect: false,
+      secondCar: false,
+      notes: "",
+      source: "quick-check",
+      price: PRICE
+    };
+
+    sending = true;
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Sending...";
+    try {
+      let reply;
+      try {
+        const res = await fetch(BACKEND_URL, { method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify(payload) });
+        reply = await res.json();
+      } catch (err) {
+        showError("We could not send your request. Please check your connection and try again, or WhatsApp us.");
+        return;
+      }
+      if (!reply || !reply.ok) {
+        showError((reply && reply.error) || "We could not accept this request. Please try again.");
+        return;
+      }
+      form.reset();
+      selectedDate = ""; selectedSlot = "";
+      renderDays(); renderSlots();
+      doneBox.textContent = "Thanks, " + name + ". We'll WhatsApp you a payment link shortly to confirm your slot.";
+      doneBox.classList.add("show");
+      doneBox.scrollIntoView({ behavior: "smooth", block: "center" });
+      loadAvailability();
+    } finally {
+      sending = false;
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Book quick check, ₹250";
+    }
+  });
+
+  renderDays(); renderSlots();
+  loadAvailability();
+  setInterval(loadAvailability, 2 * 60 * 1000);
+</script>
+</body>
+</html>
