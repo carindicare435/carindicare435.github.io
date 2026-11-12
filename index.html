@@ -1014,6 +1014,18 @@
   const form = document.getElementById("booking-form");
   const result = document.getElementById("booking-result");
 
+  // Clear the booking form after a successful request.
+  function resetBookingForm() {
+    form.reset();
+    selectedDate = "";
+    document.getElementById("date").value = ""; // form.reset() leaves hidden inputs as they are
+    document.getElementById("reg2Wrap").style.display = "none";
+    document.getElementById("reg2").required = false;
+    document.getElementById("slot").innerHTML = SLOT_NAMES.map(n => '<option value="' + n + '">' + n + '</option>').join("");
+    document.getElementById("calNote").textContent = "";
+    renderCalendar();
+  }
+
   form.addEventListener("submit", async event => {
     event.preventDefault();
     if (!document.getElementById("date").value) { alert("Please choose a date."); return; }
@@ -1084,6 +1096,7 @@
       alert(reply.error || 'We could not accept this request.');
       return;
     }
+    resetBookingForm();
 
     result.replaceChildren();
     const heading = document.createElement("strong");
