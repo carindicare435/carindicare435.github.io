@@ -98,6 +98,7 @@
     <nav>
       <a href="#dashboard" data-route="dashboard">Dashboard</a>
       <a href="#bookings" data-route="bookings">All bookings</a>
+      <a href="#quick" data-route="quick">Quick checks</a>
       <a href="#today" data-route="today">Today's visits</a>
       <a href="#availability" data-route="availability">Availability</a>
       <a href="#reminders" data-route="reminders">Reminders</a>
@@ -134,7 +135,8 @@ const CONFIG = {
 const PACKAGES = {
   quick:    { name: 'Basic',       price: 399,  secondCar: 199 },
   complete: { name: 'Standard',    price: 799,  secondCar: 399 },
-  family:   { name: 'Family & Long Drive', price: 1199, secondCar: 399 }
+  family:   { name: 'Family & Long Drive', price: 1199, secondCar: 399 },
+  quickcheck: { name: 'Quick check', price: 250, secondCar: 0 }
 };
 const EV_PRICE = 199;
 const DISINFECT_PRICE = 349;
@@ -142,17 +144,17 @@ const SLOTS = ['Morning, 9 am to 12 pm', 'Afternoon, 12 pm to 4 pm', 'Evening, 4
 const STATUS = { new: 'New request', confirmed: 'Confirmed', paid: 'Paid', in_progress: 'Visit in progress', done: 'Completed', cancelled: 'Cancelled' };
 const RESULTS = ['OK', 'Watch', 'Flag', 'Not checked'];
 const CHECKS = [
-  { id: 'tyre_pressure', label: 'Tyre pressure', pkgs: ['quick', 'complete', 'family'] },
-  { id: 'tyre_tread', label: 'Tyre tread depth, cuts and uneven wear', pkgs: ['complete', 'family'] },
+  { id: 'tyre_pressure', label: 'Tyre pressure', pkgs: ['quick', 'complete', 'family', 'quickcheck'] },
+  { id: 'tyre_tread', label: 'Tyre tread depth, cuts and uneven wear', pkgs: ['complete', 'family', 'quickcheck'] },
   { id: 'battery_test', label: 'Battery load test (note CCA and battery age)', pkgs: ['quick', 'complete', 'family'] },
   { id: 'battery_terminals', label: 'Battery terminals (visual)', pkgs: ['quick', 'complete', 'family'] },
   { id: 'battery_clean', label: 'Battery terminal cleaning (only if corrosion is visible)', pkgs: ['complete', 'family'] },
   { id: 'wipers', label: 'Wipers', pkgs: ['quick', 'complete', 'family'] },
   { id: 'fluids', label: 'Fluid levels: engine oil, coolant, brake, washer', pkgs: ['quick', 'complete', 'family'] },
-  { id: 'washer_topup', label: 'Washer fluid top-up (fluid supplied by us)', pkgs: ['complete', 'family'] },
-  { id: 'air_filter', label: 'Air filter (visual)', pkgs: ['quick', 'complete', 'family'] },
+  { id: 'washer_topup', label: 'Washer fluid top-up (fluid supplied by us)', pkgs: ['complete', 'family', 'quickcheck'] },
+  { id: 'air_filter', label: 'Air filter (visual)', pkgs: ['quick', 'complete', 'family', 'quickcheck'] },
   { id: 'engine_scan', label: 'Engine scan (note "not completed" if it does not connect)', pkgs: ['complete', 'family'] },
-  { id: 'brake_pads', label: 'Brake pads, internal and outer', pkgs: ['complete', 'family'] },
+  { id: 'brake_pads', label: 'Brake pads, internal and outer', pkgs: ['complete', 'family', 'quickcheck'] },
   { id: 'brake_fluid', label: 'Coolant and brake fluid condition', pkgs: ['family'] },
   { id: 'ac', label: 'AC cooling', pkgs: ['family'] },
   { id: 'ev_visual', label: 'EV visual check (charging port, underbody visible from the side and wheel arches with no lifting, brake discs, tyres, dashboard warnings)', pkgs: [], ev: true }
@@ -187,11 +189,21 @@ const fmt = n => '₹' + Math.round(n).toLocaleString('en-IN');
 function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 function uid() { return Math.random().toString(36).slice(2, 9) + Date.now().toString(36); }
 function slotIndex(s) { const i = SLOTS.indexOf(s); return i < 0 ? 9 : i; }
-function total(b) { const p = PACKAGES[b.pkg]; return p.price + (b.secondCar ? p.secondCar : 0) + (b.ev ? EV_PRICE : 0) + (b.disinfect && b.pkg !== 'family' ? DISINFECT_PRICE : 0); }
+// Package details for a booking. An unknown pkg falls back to its own name and price, so one odd booking can't break the page.
+function pkgInfo(b) { return PACKAGES[b.pkg] || { name: b.pkg || 'Unknown', price: Number(b.price) || 0, secondCar: 0 }; }
+// Bookings made on the quick check page (carindicare.com/quick-check/).
+function isQuick(b) { return b.source === 'quick-check'; }
+function dash(v) { return v == null || String(v).trim() === '' ? '—' : esc(v); }
+function createdText(v) {
+  if (!v) return '—';
+  const d = new Date(v);
+  return isNaN(d) ? esc(v) : d.toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+}
+function total(b) { const p = pkgInfo(b); return p.price + (b.secondCar ? p.secondCar : 0) + (b.ev ? EV_PRICE : 0) + (b.disinfect && b.pkg !== 'family' ? DISINFECT_PRICE : 0); }
 function paidSum(b) { return (b.payments || []).reduce((s, p) => s + p.amount, 0); }
 function outstanding(b) { return total(b) - paidSum(b); }
 function log(b, text) { b.log = b.log || []; b.log.unshift({ at: new Date().toLocaleString('en-IN'), text }); dirty.add(b.id); }
-function applicableChecks(b) { return CHECKS.filter(c => c.ev ? b.ev : c.pkgs.includes(b.pkg)); }
+function applicableChecks(b) { return CHECKS.filter(c => c.ev ? b.ev : (c.pkgs || []).includes(b.pkg)); }
 function waLink(phone, text) { return 'https://wa.me/91' + phone + '?text=' + encodeURIComponent(text); }
 function mk(o) {
   return Object.assign({
@@ -242,6 +254,7 @@ function render() {
   document.querySelectorAll('aside nav a').forEach(a => a.classList.toggle('active', a.dataset.route === route()));
   const r = route();
   if (r === 'bookings') renderBookings();
+  else if (r === 'quick') renderQuick();
   else if (r === 'today') renderToday();
   else if (r === 'availability') renderAvailability();
   else if (r === 'reminders') renderReminders();
@@ -257,13 +270,14 @@ function sortByWhen(a, b) { return (a.date + slotIndex(a.slot)).localeCompare(b.
 
 function renderDashboard() {
   const t = today(), m = t.slice(0, 7);
-  const active = db.bookings.filter(b => !['new', 'cancelled'].includes(b.status));
-  const newCount = db.bookings.filter(b => b.status === 'new').length;
-  const todayCount = db.bookings.filter(b => b.date === t && !['new', 'cancelled'].includes(b.status)).length;
-  const doneMonth = db.bookings.filter(b => b.status === 'done' && b.date.startsWith(m)).length;
-  const collected = db.bookings.reduce((s, b) => s + (b.payments || []).filter(p => p.date.startsWith(m)).reduce((x, p) => x + p.amount, 0), 0);
+  const main = db.bookings.filter(b => !isQuick(b)); // quick checks have their own tab
+  const active = main.filter(b => !['new', 'cancelled'].includes(b.status));
+  const newCount = main.filter(b => b.status === 'new').length;
+  const todayCount = main.filter(b => b.date === t && !['new', 'cancelled'].includes(b.status)).length;
+  const doneMonth = main.filter(b => b.status === 'done' && b.date.startsWith(m)).length;
+  const collected = main.reduce((s, b) => s + (b.payments || []).filter(p => p.date.startsWith(m)).reduce((x, p) => x + p.amount, 0), 0);
   const owed = active.reduce((s, b) => s + Math.max(0, outstanding(b)), 0);
-  const needs = db.bookings.filter(b => b.status === 'new').sort(sortByWhen);
+  const needs = main.filter(b => b.status === 'new').sort(sortByWhen);
 
   document.getElementById('view').innerHTML =
     '<h1>Dashboard</h1><p class="sub">' + niceDate(t) + '. Bookings are kept in this browser.</p>' +
@@ -285,7 +299,7 @@ const COLS = [
   { key: 'customer', label: 'Customer', value: b => b.name + ' ' + b.phone },
   { key: 'community', label: 'Community', value: b => b.community },
   { key: 'car', label: 'Car', value: b => b.reg },
-  { key: 'pkg', label: 'Package', value: b => PACKAGES[b.pkg].name + (b.secondCar ? ' second car' : '') + (b.ev ? ' EV check' : '') },
+  { key: 'pkg', label: 'Package', value: b => pkgInfo(b).name + (b.secondCar ? ' second car' : '') + (b.ev ? ' EV check' : '') },
   { key: 'total', label: 'Total', value: b => total(b), num: true },
   { key: 'status', label: 'Status', value: b => STATUS[b.status], select: true }
 ];
@@ -297,7 +311,7 @@ function bookingRow(b) {
     '<td>' + esc(b.name) + '<br><span class="sub">' + esc(b.phone) + '</span>' + sampleTag(b) + '</td>' +
     '<td>' + esc(b.community) + '</td>' +
     '<td>' + esc(b.reg) + '<br><span class="sub">' + esc(b.reg) + '</span></td>' +
-    '<td>' + esc(PACKAGES[b.pkg].name) + (b.secondCar ? '<br><span class="sub">+ second car</span>' : '') + (b.ev ? '<br><span class="sub">+ EV visual check</span>' : '') + '</td>' +
+    '<td>' + esc(pkgInfo(b).name) + (b.secondCar ? '<br><span class="sub">+ second car</span>' : '') + (b.ev ? '<br><span class="sub">+ EV visual check</span>' : '') + '</td>' +
     '<td>' + fmt(total(b)) + '</td>' +
     '<td>' + badge(b.status) + '</td>' +
     '<td><button class="btn sm" onclick="openBooking(\'' + b.id + '\')">Open</button></td>' +
@@ -348,7 +362,7 @@ function sortValue(col, b) {
 function drawBookingList() {
   if (!document.getElementById('bkBody')) return;
   const needle = ((document.getElementById('q') || {}).value || '').trim().toLowerCase();
-  let list = db.bookings.slice();
+  let list = db.bookings.filter(b => !isQuick(b)); // quick checks have their own tab
 
   if (needle) {
     list = list.filter(b => [b.name, b.phone, b.community, b.reg].join(' ').toLowerCase().includes(needle));
@@ -392,6 +406,33 @@ function renderToday() {
   document.getElementById('view').innerHTML = html;
 }
 
+// ---------- quick checks (bookings from the quick check page) ----------
+function quickRow(b) {
+  return '<tr>' +
+    '<td>' + (b.date ? niceDate(b.date) : '—') + '</td>' +
+    '<td>' + dash(b.slot) + '</td>' +
+    '<td>' + dash(b.name) + '</td>' +
+    '<td>' + dash(b.phone) + '</td>' +
+    '<td>' + dash(b.community) + '</td>' +
+    '<td>' + dash(b.reg) + '</td>' +
+    '<td>' + (STATUS[b.status] ? badge(b.status) : dash(b.status)) + '</td>' +
+    '<td>' + createdText(b.createdAt) + '</td>' +
+    '<td><button class="btn sm" onclick="openBooking(\'' + b.id + '\')">Open</button></td>' +
+  '</tr>';
+}
+
+function renderQuick() {
+  const list = db.bookings.filter(isQuick).sort(sortByWhen);
+  document.getElementById('view').innerHTML =
+    '<h1>Quick checks</h1>' +
+    '<p class="sub">Bookings from the quick check page, sorted by date and slot. They also show in Today’s visits, Reminders and Availability, but not in the Dashboard, All bookings or Reports.</p>' +
+    '<div class="toolbar"><button class="btn sm ghost" onclick="exportCSV(true)">Export CSV</button></div>' +
+    (list.length
+      ? '<div class="wrap"><table><thead><tr><th>Date</th><th>Slot</th><th>Name</th><th>Phone</th><th>Flat or house</th><th>Car reg</th><th>Status</th><th>Created</th><th></th></tr></thead><tbody>' +
+          list.map(quickRow).join('') + '</tbody></table></div>'
+      : '<p class="sub">No quick checks yet</p>');
+}
+
 // ---------- booking detail ----------
 function openBooking(id) {
   current = id;
@@ -408,7 +449,7 @@ function getBooking() { return db.bookings.find(b => b.id === current); }
 function renderModal() {
   const b = getBooking();
   if (!b) return;
-  const p = PACKAGES[b.pkg];
+  const p = pkgInfo(b);
   const nice = niceDate(b.date);
   let actions = '';
   let extra = '';
@@ -519,7 +560,7 @@ function sendPaymentRequest() {
   b.paymentLink = link.trim();
   log(b, 'Payment request sent');
   save();
-  window.open(waLink(b.phone, 'Hi ' + b.name + ', here is the payment link for your ' + PACKAGES[b.pkg].name + ' visit: ' + b.paymentLink + ' (total ' + fmt(total(b)) + ' incl. GST).'), '_blank');
+  window.open(waLink(b.phone, 'Hi ' + b.name + ', here is the payment link for your ' + pkgInfo(b).name + ' visit: ' + b.paymentLink + ' (total ' + fmt(total(b)) + ' incl. GST).'), '_blank');
   renderModal();
 }
 
@@ -689,13 +730,14 @@ function parseWA(text) {
 }
 
 // ---------- export and housekeeping ----------
-function exportCSV() {
+// The sidebar button exports the main bookings; the Quick checks tab exports quick checks only.
+function exportCSV(quickOnly) {
   const head = ['Date', 'Slot', 'Name', 'Phone', 'Community', 'Car', 'Registration', 'Package', 'Second car', 'EV check', 'Total', 'Paid', 'Status'];
-  const rows = db.bookings.slice().sort(sortByWhen).map(b => [b.date, b.slot, b.name, b.phone, b.community, b.car, b.reg, PACKAGES[b.pkg].name, b.secondCar ? 'Yes' : 'No', b.ev ? 'Yes' : 'No', total(b), paidSum(b), STATUS[b.status]]);
+  const rows = db.bookings.filter(b => quickOnly ? isQuick(b) : !isQuick(b)).sort(sortByWhen).map(b => [b.date, b.slot, b.name, b.phone, b.community, b.car, b.reg, pkgInfo(b).name, b.secondCar ? 'Yes' : 'No', b.ev ? 'Yes' : 'No', total(b), paidSum(b), STATUS[b.status]]);
   const csv = [head, ...rows].map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n');
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
-  a.download = 'bookings-' + today() + '.csv';
+  a.download = (quickOnly ? 'quick-checks-' : 'bookings-') + today() + '.csv';
   a.click();
 }
 
@@ -782,7 +824,7 @@ function reminderItems() {
     const key = 'visit-' + b.id + '-' + b.date;
     if (sentAlready(b, key)) return;
     items.push({ kind: 'Visit in the next 2 days', due: b.date, b: b, key: key,
-      text: 'Hi ' + b.name + ', reminder: your ' + PACKAGES[b.pkg].name + ' is booked for ' + niceDate(b.date) + ' (' + b.slot + ') at ' + b.community + '. Please keep the car accessible for the technician. Reply if you need to change the time.' });
+      text: 'Hi ' + b.name + ', reminder: your ' + pkgInfo(b).name + ' is booked for ' + niceDate(b.date) + ' (' + b.slot + ') at ' + b.community + '. Please keep the car accessible for the technician. Reply if you need to change the time.' });
   });
 
   // subscriptions: visits due, and the year ending
@@ -878,22 +920,26 @@ function renderReports() {
   const t = today();
   const months = [];
   for (let i = 5; i >= 0; i--) { const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - i); months.push(isoDate(d).slice(0, 7)); }
+  const main = db.bookings.filter(b => !isQuick(b)); // quick checks are left out of all report figures
   const monthRows = months.map(m => {
-    const revenue = db.bookings.reduce((sum, b) => sum + (b.payments || []).filter(p => p.date.indexOf(m) === 0).reduce((x, p) => x + p.amount, 0), 0);
-    const booked = db.bookings.filter(b => b.date.indexOf(m) === 0 && b.status !== 'cancelled').length;
-    const done = db.bookings.filter(b => b.date.indexOf(m) === 0 && b.status === 'done').length;
-    const cancelled = db.bookings.filter(b => b.date.indexOf(m) === 0 && b.status === 'cancelled').length;
+    const revenue = main.reduce((sum, b) => sum + (b.payments || []).filter(p => p.date.indexOf(m) === 0).reduce((x, p) => x + p.amount, 0), 0);
+    const booked = main.filter(b => b.date.indexOf(m) === 0 && b.status !== 'cancelled').length;
+    const done = main.filter(b => b.date.indexOf(m) === 0 && b.status === 'done').length;
+    const cancelled = main.filter(b => b.date.indexOf(m) === 0 && b.status === 'cancelled').length;
     return '<tr><td>' + m + '</td><td>' + fmt(revenue) + '</td><td>' + booked + '</td><td>' + done + '</td><td>' + cancelled + '</td></tr>';
   }).join('');
-  const pkgRows = Object.keys(PACKAGES).map(k => '<tr><td>' + esc(PACKAGES[k].name) + '</td><td>' + db.bookings.filter(b => b.pkg === k && b.status === 'done').length + '</td></tr>').join('');
+  const pkgCounts = {};
+  Object.keys(PACKAGES).filter(k => k !== 'quickcheck').forEach(k => { pkgCounts[PACKAGES[k].name] = 0; });
+  main.filter(b => b.status === 'done').forEach(b => { const n = pkgInfo(b).name; pkgCounts[n] = (pkgCounts[n] || 0) + 1; });
+  const pkgRows = Object.keys(pkgCounts).map(n => '<tr><td>' + esc(n) + '</td><td>' + pkgCounts[n] + '</td></tr>').join('');
   const comm = {};
-  db.bookings.filter(b => b.status !== 'cancelled').forEach(b => { comm[b.community] = (comm[b.community] || 0) + 1; });
+  main.filter(b => b.status !== 'cancelled').forEach(b => { comm[b.community] = (comm[b.community] || 0) + 1; });
   const topRows = Object.keys(comm).sort((a, b) => comm[b] - comm[a]).slice(0, 8).map(c => '<tr><td>' + esc(c) + '</td><td>' + comm[c] + '</td></tr>').join('');
   const doneByCar = {};
-  db.bookings.filter(b => b.status === 'done').forEach(b => { const k = normReg(b.reg); doneByCar[k] = (doneByCar[k] || 0) + 1; });
+  main.filter(b => b.status === 'done').forEach(b => { const k = normReg(b.reg); doneByCar[k] = (doneByCar[k] || 0) + 1; });
   const repeatCars = Object.keys(doneByCar).filter(k => doneByCar[k] >= 2).length;
   const subs = {};
-  db.bookings.filter(b => b.subId && PLANS[b.plan] && b.subStart && b.status !== 'cancelled').forEach(b => { subs[b.subId] = b; });
+  main.filter(b => b.subId && PLANS[b.plan] && b.subStart && b.status !== 'cancelled').forEach(b => { subs[b.subId] = b; });
   const subList = Object.keys(subs).map(k => subs[k]);
   const activeSubs = subList.filter(b => dayNum(subEnd(b)) >= dayNum(t)).length;
   const endingSubs = subList.filter(b => { const g = dayNum(subEnd(b)) - dayNum(t); return g >= 0 && g <= 30; }).length;
@@ -974,7 +1020,7 @@ function refreshManualSlots() {
 }
 
 function openManual(date) {
-  const pkgOpts = Object.keys(PACKAGES).map(k => '<option value="' + k + '">' + esc(PACKAGES[k].name) + ' (' + fmt(PACKAGES[k].price) + ')</option>').join('');
+  const pkgOpts = Object.keys(PACKAGES).filter(k => k !== 'quickcheck').map(k => '<option value="' + k + '">' + esc(PACKAGES[k].name) + ' (' + fmt(PACKAGES[k].price) + ')</option>').join('');
   document.getElementById('modal').innerHTML =
     '<h2>Manual booking</h2>' +
     '<p class="sub">For customers who call. The booking is confirmed straight away and uses one space, so the website and this calendar update.</p>' +
@@ -1048,8 +1094,8 @@ function paymentInfo(b) {
 function bookingDetailsLines(b) {
   return 'Date: ' + niceDate(b.date) + '\n' +
     'Time: ' + b.slot + '\n' +
-    'Package: ' + PACKAGES[b.pkg].name + (b.secondCar ? ' + second car' : '') + (b.ev ? ' + EV visual check' : '') + (b.disinfect ? ' + interior disinfection' : '') + '\n' +
-    'Registration: ' + b.reg + (b.reg2 ? '\nSecond car: ' + b.reg2 : '') + '\n' +
+    'Package: ' + pkgInfo(b).name + (b.secondCar ? ' + second car' : '') + (b.ev ? ' + EV visual check' : '') + (b.disinfect ? ' + interior disinfection' : '') + '\n' +
+    'Registration: ' + (String(b.reg || '').trim() || '—') + (b.reg2 ? '\nSecond car: ' + b.reg2 : '') + '\n' +
     'Community: ' + b.community + '\n' +
     'Total: ' + fmt(total(b)) + ' incl. GST';
 }
@@ -1077,8 +1123,8 @@ function confirmationText(b) {
   return 'Hi ' + b.name + ', payment received. Your booking with ' + CONFIG.businessName + ' is confirmed.\n\n' +
     'Date: ' + niceDate(b.date) + '\n' +
     'Time: ' + b.slot + '\n' +
-    'Package: ' + PACKAGES[b.pkg].name + (b.secondCar ? ' + second car' : '') + (b.ev ? ' + EV visual check' : '') + (b.disinfect ? ' + interior disinfection' : '') + '\n' +
-    'Registration: ' + b.reg + (b.reg2 ? '\nSecond car: ' + b.reg2 : '') + '\n' +
+    'Package: ' + pkgInfo(b).name + (b.secondCar ? ' + second car' : '') + (b.ev ? ' + EV visual check' : '') + (b.disinfect ? ' + interior disinfection' : '') + '\n' +
+    'Registration: ' + (String(b.reg || '').trim() || '—') + (b.reg2 ? '\nSecond car: ' + b.reg2 : '') + '\n' +
     'Community: ' + b.community + '\n' +
     'Total paid: ' + fmt(total(b)) + ' incl. GST\n\n' +
     'Please keep the car accessible for the technician. To cancel or reschedule, send us a message on WhatsApp on ' + CONFIG.businessPhone + '. Free until the day before your booking. On the day, cancelling or rescheduling costs 10% of the booking.\n\n' +
@@ -1168,7 +1214,8 @@ function pushBooking(b) {
   const row = {
     id: b.id, createdAt: b.createdAt, status: b.status, name: b.name, phone: b.phone,
     community: b.community, car: b.car, reg: b.reg, pkg: b.pkg, secondCar: b.secondCar,
-    ev: b.ev, date: b.date, slot: b.slot, notes: b.notes, paymentLink: b.paymentLink, reg2: b.reg2 || '', plan: b.plan || 'none', subId: b.subId || '', subStart: b.subStart || '', disinfect: !!b.disinfect
+    ev: b.ev, date: b.date, slot: b.slot, notes: b.notes, paymentLink: b.paymentLink, reg2: b.reg2 || '', plan: b.plan || 'none', subId: b.subId || '', subStart: b.subStart || '', disinfect: !!b.disinfect,
+    source: b.source || '', price: b.price == null ? '' : b.price
   };
   fetch(CONFIG.backendUrl, {
     method: 'POST',
@@ -1197,12 +1244,18 @@ async function syncFromSheet(showMessage) {
     }
     let added = 0;
     data.bookings.forEach(r => {
-      if (db.bookings.some(b => b.id === r.id)) return;
+      const known = db.bookings.find(b => b.id === r.id);
+      if (known) {
+        // fill in source and price for bookings stored before these fields were copied
+        if (!known.source && r.source) { known.source = r.source; known.price = r.price == null || r.price === '' ? '' : Number(r.price); }
+        return;
+      }
       const b = mk({
         id: r.id, createdAt: r.createdAt, status: r.status || 'new', name: r.name,
         phone: String(r.phone || '').replace(/\D/g, '').slice(-10), community: r.community,
         car: r.car, reg: r.reg, reg2: r.reg2 || '', pkg: r.pkg, secondCar: !!r.secondCar, ev: !!r.ev, disinfect: !!r.disinfect, plan: r.plan || 'none', subId: r.subId || '', subStart: dateFromSheet(r.subStart),
-        date: dateFromSheet(r.date), slot: r.slot, notes: r.notes || '', paymentLink: r.paymentLink || ''
+        date: dateFromSheet(r.date), slot: r.slot, notes: r.notes || '', paymentLink: r.paymentLink || '',
+        source: r.source || '', price: r.price == null || r.price === '' ? '' : Number(r.price)
       });
       log(b, 'Request received from website');
       db.bookings.push(b);
