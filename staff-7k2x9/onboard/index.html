@@ -176,9 +176,9 @@ function renderSlots() {
   if (!date) { box.innerHTML = '<div class="note" style="grid-column:1/-1">Tap a date to see the times.</div>'; return; }
   box.innerHTML = SLOTS.map((name, i) => {
     const full = booked(date, name) >= CAPACITY, closed = slotClosed(date, i);
-    const short = ["Morning", "Afternoon", "Evening"][i];
+    const [short, hours] = name.split(", ");
     return '<button class="slot' + (slot === name ? " on" : "") + '"' + (full || closed ? " disabled" : "") +
-      ' onclick="pickSlot(' + i + ')">' + short + '<br><small>' + (full ? "Full" : closed ? "Not available" : "Free") + '</small></button>';
+      ' onclick="pickSlot(' + i + ')">' + short + '<br><small>' + hours + '</small><br><small>' + (full ? "Full" : closed ? "Not available" : "Free") + '</small></button>';
   }).join("");
 }
 function pickDate(iso) {
