@@ -152,7 +152,7 @@ const CHECKS = [
   { id: 'wipers', label: 'Wipers', pkgs: ['quick', 'complete', 'family'] },
   { id: 'fluids', label: 'Fluid levels: engine oil, coolant, brake, washer', pkgs: ['quick', 'complete', 'family'] },
   { id: 'washer_topup', label: 'Washer fluid top-up (fluid supplied by us)', pkgs: ['complete', 'family', 'quickcheck'] },
-  { id: 'air_filter', label: 'Air filter (visual)', pkgs: ['quick', 'complete', 'family', 'quickcheck'] },
+  { id: 'air_filter', label: 'Air filter (visual)', quickLabel: 'Engine air filter inspection (Visual)', pkgs: ['quick', 'complete', 'family', 'quickcheck'] },
   { id: 'engine_scan', label: 'Engine scan (note "not completed" if it does not connect)', pkgs: ['complete', 'family'] },
   { id: 'brake_pads', label: 'Brake pads, internal and outer', pkgs: ['complete', 'family', 'quickcheck'] },
   { id: 'brake_fluid', label: 'Coolant and brake fluid condition', pkgs: ['family'] },
@@ -204,6 +204,8 @@ function paidSum(b) { return (b.payments || []).reduce((s, p) => s + p.amount, 0
 function outstanding(b) { return total(b) - paidSum(b); }
 function log(b, text) { b.log = b.log || []; b.log.unshift({ at: new Date().toLocaleString('en-IN'), text }); dirty.add(b.id); }
 function applicableChecks(b) { return CHECKS.filter(c => c.ev ? b.ev : (c.pkgs || []).includes(b.pkg)); }
+// Checklist wording for this booking: quick checks use quickLabel where an item has one.
+function labelFor(item, b) { return item.quickLabel && (b.pkg === 'quickcheck' || isQuick(b)) ? item.quickLabel : item.label; }
 function waLink(phone, text) { return 'https://wa.me/91' + phone + '?text=' + encodeURIComponent(text); }
 function mk(o) {
   return Object.assign({
@@ -540,7 +542,7 @@ function renderModal() {
       applicableChecks(b).map(c => {
         const saved = b.checks[c.id] || {};
         return '<div class="row" style="margin-bottom:8px;align-items:flex-start;">' +
-          '<div style="flex:1 1 260px;font-size:13px;padding-top:8px;">' + esc(c.label) + '</div>' +
+          '<div style="flex:1 1 260px;font-size:13px;padding-top:8px;">' + esc(labelFor(c, b)) + '</div>' +
           '<select id="res-' + c.id + '" style="width:130px;">' +
             '<option value="">Choose</option>' +
             RESULTS.map(r => '<option' + (saved.result === r ? ' selected' : '') + '>' + r + '</option>').join('') +
@@ -661,7 +663,7 @@ function completeVisit() {
   const b = getBooking();
   b.checks = readChecklist(b);
   const missing = applicableChecks(b).filter(c => !b.checks[c.id] || !b.checks[c.id].result);
-  if (missing.length) { alert('Choose a result for every item first. Missing: ' + missing.map(c => c.label).join('; ')); return; }
+  if (missing.length) { alert('Choose a result for every item first. Missing: ' + missing.map(c => labelFor(c, b)).join('; ')); return; }
   b.status = 'done';
   log(b, 'Visit completed; report sent');
   save();
@@ -710,17 +712,17 @@ function reportText(b) {
   checks.forEach(c => {
     const r = b.checks[c.id] || {};
     if (r.result === 'Not checked' || !r.result) return;
-    lines.push(c.label + ': ' + r.result + (r.note ? ' (' + r.note + ')' : ''));
+    lines.push(labelFor(c, b) + ': ' + r.result + (r.note ? ' (' + r.note + ')' : ''));
   });
   const notChecked = checks.filter(c => { const r = b.checks[c.id] || {}; return r.result === 'Not checked' || !r.result; });
   if (notChecked.length) {
     lines.push('', 'Not checked on this visit:');
-    notChecked.forEach(c => lines.push('- ' + c.label));
+    notChecked.forEach(c => lines.push('- ' + labelFor(c, b)));
   }
   const watch = checks.filter(c => ['Watch', 'Flag'].includes((b.checks[c.id] || {}).result));
   if (watch.length) {
     lines.push('', 'Recommended: have these looked at by a workshop of your choice:');
-    watch.forEach(c => lines.push('- ' + c.label + ' (' + b.checks[c.id].result + ')'));
+    watch.forEach(c => lines.push('- ' + labelFor(c, b) + ' (' + b.checks[c.id].result + ')'));
   }
   return lines.join('\n');
 }
