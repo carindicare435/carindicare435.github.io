@@ -697,33 +697,43 @@ function earliestBookableDate() {
   return isoDate(d);
 }
 
+// WhatsApp-formatted report: *bold*, _italic_, ```box```. Plain text only.
 function reportText(b) {
   const checks = applicableChecks(b);
+  const blank = v => (v == null || String(v).trim() === '') ? '—' : String(v).trim();
+  const SEP = '━'.repeat(20);
+  const ICON = { OK: '✅', Watch: '⚠️', Flag: '❗' };
   const lines = [
-    'Vehicle check report',
-    'Customer: ' + b.name,
-    'Community and block: ' + b.community,
-    b.reg + ', ' + niceDate(b.date),
+    '*' + CONFIG.businessName.toUpperCase() + ' | Vehicle Check Report*',
+    SEP,
+    '👤 ' + blank(b.name),
+    '🚗 ```' + blank(b.reg) + '```',
+    '📅 ' + (b.date ? niceDate(b.date) : '—') + ' · ' + blank(b.slot),
+    '📍 ' + blank(b.community),
     '',
-    'Visual and basic check only.',
-    'This is not a certificate of roadworthiness.',
-    ''
+    '*Results*'
   ];
+  let shown = 0;
   checks.forEach(c => {
     const r = b.checks[c.id] || {};
     if (r.result === 'Not checked' || !r.result) return;
-    lines.push(labelFor(c, b) + ': ' + r.result + (r.note ? ' (' + r.note + ')' : ''));
+    lines.push((ICON[r.result] || '•') + ' ' + labelFor(c, b) + ': *' + r.result + '*');
+    if (r.note) lines.push('     ' + r.note);
+    shown++;
   });
+  if (!shown) lines.push('—');
   const notChecked = checks.filter(c => { const r = b.checks[c.id] || {}; return r.result === 'Not checked' || !r.result; });
   if (notChecked.length) {
-    lines.push('', 'Not checked on this visit:');
-    notChecked.forEach(c => lines.push('- ' + labelFor(c, b)));
+    lines.push('', '*Not checked this visit*');
+    notChecked.forEach(c => lines.push('➖ ' + labelFor(c, b)));
   }
   const watch = checks.filter(c => ['Watch', 'Flag'].includes((b.checks[c.id] || {}).result));
   if (watch.length) {
-    lines.push('', 'Recommended: have these looked at by a workshop of your choice:');
-    watch.forEach(c => lines.push('- ' + labelFor(c, b) + ' (' + b.checks[c.id].result + ')'));
+    lines.push('', '*Recommended next step*', 'Have these looked at by a workshop of your choice:');
+    watch.forEach(c => lines.push('➖ ' + labelFor(c, b) + ' (' + b.checks[c.id].result + ')'));
   }
+  lines.push('', SEP, '_Visual and basic check only. Not a certificate of roadworthiness._',
+    'Questions? WhatsApp ' + String(CONFIG.whatsappNumber).replace(/^91/, ''));
   return lines.join('\n');
 }
 
