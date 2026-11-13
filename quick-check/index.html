@@ -190,6 +190,7 @@
         <div>
           <span class="label" id="date-label">Date</span>
           <div class="days" id="days" role="group" aria-labelledby="date-label"></div>
+          <p class="hint" id="day-summary" aria-live="polite"></p>
         </div>
         <div>
           <span class="label" id="slot-label">Time slot</span>
@@ -306,6 +307,9 @@
 
   function renderSlots() {
     const box = document.getElementById("slots");
+    const open = selectedDate ? openSlots(selectedDate).length : 0; // slots with at least one space left
+    document.getElementById("day-summary").textContent = !selectedDate ? ""
+      : open ? open + (open === 1 ? " slot" : " slots") + " available" : "No slots available";
     if (!selectedDate) { box.innerHTML = '<p class="empty">Choose a date to see the times.</p>'; return; }
     if (selectedSlot) {
       const i = SLOT_NAMES.indexOf(selectedSlot);
@@ -317,8 +321,9 @@
       const name = SLOT_NAMES[i];
       const [short, hours] = name.split(", ");
       const full = slotFull(selectedDate, i);
+      const left = Math.max(0, SLOT_CAPACITY - (Number(bookedFor(selectedDate, name)) || 0));
       return '<button type="button" class="slot" data-slot="' + i + '" aria-pressed="' + (name === selectedSlot) + '"' + (full ? " disabled" : "") + '>' +
-        short + '<small>' + hours + '</small><small class="st">' + (full ? "Full" : "Free") + '</small></button>';
+        short + '<small>' + hours + '</small><small class="st">' + (full ? "Full" : left + (left === 1 ? " space left" : " spaces left")) + '</small></button>';
     }).join("");
   }
 
