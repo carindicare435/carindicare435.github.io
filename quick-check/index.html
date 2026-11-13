@@ -87,10 +87,8 @@
   .qc-list li { display: flex; gap: 12px; align-items: flex-start; font-size: 17px; color: #e4e9f0; }
   .qc-list li svg { flex: 0 0 22px; margin-top: 3px; }
   .qc-list svg circle { fill: var(--accent); }
-  .qc-price { font-size: 19px; font-weight: 600; color: var(--white); margin: 0 0 6px; }
-  .qc-note { color: #c9d0da; margin: 0; }
-  .qc-promise { font-size: 16px; font-weight: 600; color: #e4e9f0; border-left: 3px solid #c9a8f0; padding: 2px 0 2px 12px; margin: -8px 0 20px; }
-  .qc-offer { margin: 0 0 18px; padding: 16px 18px; background: #f4f0fa; border: 2px solid var(--accent); border-radius: 12px; font-size: 17px; font-weight: 600; color: var(--accent-dark); }
+  .qc-promise { font-size: 16px; font-weight: 700; color: #F59E0B; border-left: 3px solid #c9a8f0; padding: 2px 0 2px 12px; margin: -8px 0 20px; }
+  .qc-offer { margin: 14px 0 0; padding: 16px 18px; background: #f4f0fa; border: 2px solid var(--accent); border-radius: 12px; font-size: calc(clamp(28px, 6.4vw, 44px) / 2); /* half the headline size */ font-weight: 600; color: var(--accent-dark); }
 
   .qc-book { background: var(--paper); padding: 36px 0 56px; scroll-margin-top: 72px; /* clear the sticky header */ }
   .qc-book .container { max-width: 760px; }
@@ -156,23 +154,21 @@
   <section class="qc-hero">
     <div class="container">
       <h1>Quick car health check, ₹250</h1>
+      <p class="qc-offer">This offer applies to bookings made today, for visits within the next 14 days.</p>
       <ul class="qc-list">
         <li><svg width="22" height="22" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="8.5"/><path d="M5 9.2l2.6 2.6L13 6.4" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Tyre pressure check</li>
         <li><svg width="22" height="22" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="8.5"/><path d="M5 9.2l2.6 2.6L13 6.4" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Tread depth check</li>
         <li><svg width="22" height="22" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="8.5"/><path d="M5 9.2l2.6 2.6L13 6.4" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Washer fluid top-up</li>
         <li><svg width="22" height="22" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="8.5"/><path d="M5 9.2l2.6 2.6L13 6.4" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Brake pad visual check</li>
-        <li><svg width="22" height="22" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="8.5"/><path d="M5 9.2l2.6 2.6L13 6.4" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Clean air filter</li>
+        <li><svg width="22" height="22" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="8.5"/><path d="M5 9.2l2.6 2.6L13 6.4" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Engine air filter inspection (Visual)</li>
       </ul>
-      <p class="qc-promise">No upselling. No repairs. No product sales. Just a health check and a written report.</p>
-      <p class="qc-price">₹250 per car, covering all five checks.</p>
-      <p class="qc-note">We'll WhatsApp you a payment link to confirm your booking.</p>
+      <p class="qc-promise">No upselling. No repairs. No product sales. Just a health check and a report.</p>
     </div>
   </section>
 
   <section class="qc-book" id="book">
     <div class="container">
       <h2>Book your quick check</h2>
-      <p class="qc-offer">This offer applies to bookings made today, for visits within the next 14 days.</p>
       <div id="qc-done" role="status" aria-live="polite"></div>
       <form class="qc" id="qc-form" novalidate>
         <div>
