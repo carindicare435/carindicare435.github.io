@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fuel saving calculator | Carindicare</title>
+<meta name="description" content="See how much petrol you could save each week by keeping your tyres properly inflated.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* Colours, type, header, buttons and footer: same as the main page (index.html) */
+  :root {
+    --ink: #171a1f;
+    --graphite: #22262d;
+    --accent: #6b3fa0;
+    --accent-dark: #52307a;
+    --green: #1e8a54;
+    --paper: #f6f5f2;
+    --line: #e4e2dd;
+    --muted: #646b75;
+    --white: #ffffff;
+    --tint-green: #eef7f1;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    color: var(--ink);
+    background: var(--white);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; }
+  img { max-width: 100%; display: block; }
+  .container { max-width: 1180px; margin: 0 auto; padding: 0 20px; }
+  h1, h2, h3, h4 { margin: 0; line-height: 1.2; letter-spacing: -0.01em; }
+  p { margin: 0 0 14px; }
+
+  .utility { background: var(--ink); color: #c9ced6; font-size: 13px; }
+  .utility .container { display: flex; justify-content: space-between; align-items: center; min-height: 36px; flex-wrap: wrap; gap: 6px 16px; padding-top: 6px; padding-bottom: 6px; }
+  .utility a { color: var(--white); text-decoration: none; font-weight: 600; }
+
+  header.site { background: var(--graphite); color: var(--white); position: sticky; top: 0; z-index: 40; }
+  header.site .container { display: flex; justify-content: space-between; align-items: center; height: 72px; gap: 20px; }
+  .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 700; font-size: 20px; letter-spacing: -0.01em; }
+  .city { font-size: 13px; color: #aab2bd; border-left: 1px solid #3a404a; padding-left: 14px; margin-left: 4px; }
+  nav.site { display: flex; align-items: center; gap: 26px; }
+  nav.site a { text-decoration: none; color: #d9dee6; font-size: 14px; font-weight: 500; }
+  nav.site a:hover { color: var(--white); }
+  @media (max-width: 960px) { nav.site a.hide-m { display: none; } .city { display: none; } }
+
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; border: 0; text-decoration: none; background: var(--accent); color: var(--white); font: inherit; font-weight: 600; font-size: 16px; padding: 14px 24px; border-radius: 8px; transition: background .15s; }
+  .btn:hover { background: var(--accent-dark); }
+  .btn.block { width: 100%; }
+  .btn.sm { padding: 9px 16px; font-size: 14px; }
+
+  footer { background: var(--ink); color: #aab2bd; padding: 60px 0 28px; font-size: 14px; }
+  footer .cols { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 32px; }
+  @media (max-width: 860px) { footer .cols { grid-template-columns: 1fr 1fr; } }
+  footer h4 { color: var(--white); font-size: 15px; font-weight: 600; margin: 0 0 14px; }
+  footer a { display: block; color: #aab2bd; text-decoration: none; margin-bottom: 8px; }
+  footer a:hover { color: var(--white); }
+  footer .legal { border-top: 1px solid #2d333c; margin-top: 40px; padding-top: 20px; font-size: 13px; color: #7f8794; }
+  footer .legal p { margin: 0 0 8px; }
+
+  /* ---- Calculator page ---- */
+  .calc-hero { background: radial-gradient(ellipse at 72% 45%, #4a4f59 0%, #2c3038 45%, #17191e 100%); color: var(--white); padding: 44px 0 40px; position: relative; overflow: hidden; }
+  .calc-hero::before { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(90deg, rgba(255,255,255,0.025) 0 1px, transparent 1px 3px); pointer-events: none; }
+  .calc-hero .container { position: relative; z-index: 1; max-width: 760px; }
+  .calc-hero h1 { font-size: clamp(28px, 6.4vw, 44px); font-weight: 700; background: linear-gradient(180deg, #ffffff 0%, #d5dbe4 50%, #8f9aaa 100%); -webkit-background-clip: text; background-clip: text; color: transparent; text-wrap: balance; }
+  .calc-hero p { color: #d6dce5; font-size: 18px; margin: 14px 0 0; }
+
+  .calc-main { background: var(--paper); padding: 36px 0 56px; }
+  .calc-main .container { max-width: 760px; }
+  .card { background: var(--white); border-radius: 14px; padding: 24px; box-shadow: 0 8px 30px rgba(0,0,0,.06); }
+  .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 16px; }
+  @media (max-width: 600px) { .fields { grid-template-columns: 1fr; } }
+  .fields label { display: block; font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+  /* 16px text stops phones zooming in on focus; 54px height for easy tapping */
+  .fields input { width: 100%; min-height: 54px; padding: 12px 14px; font: inherit; font-size: 18px; border: 1px solid #cfd4db; border-radius: 10px; background: var(--white); color: var(--ink); }
+  .fields input:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+  .fields input[aria-invalid="true"] { border-color: #b3261e; }
+  .field-err { color: #b3261e; font-size: 13px; font-weight: 600; margin: 6px 0 0; }
+  .field-err:empty { display: none; }
+  .dist-note { grid-column: 1 / -1; margin: -6px 0 0; font-size: 14px; color: var(--muted); }
+  .dist-note[hidden] { display: none; }
+
+  .result { margin-top: 22px; padding: 22px; background: var(--tint-green); border: 2px solid var(--green); border-radius: 12px; }
+  .result[hidden], .calc-msg[hidden] { display: none; }
+  .result .headline { font-size: clamp(22px, 5.6vw, 30px); font-weight: 700; line-height: 1.25; margin: 0 0 6px; }
+  .result .headline b { color: var(--green); }
+  .result .sub { font-size: 17px; font-weight: 600; margin: 0 0 16px; }
+  .breakdown { width: 100%; border-collapse: collapse; background: var(--white); border-radius: 10px; overflow: hidden; font-size: 15px; }
+  .breakdown th, .breakdown td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+  .breakdown thead th { background: var(--paper); font-size: 13px; color: var(--muted); font-weight: 600; }
+  .breakdown tr:last-child td, .breakdown tr:last-child th { border-bottom: 0; }
+  .breakdown td { font-weight: 600; white-space: nowrap; }
+  .table-wrap { overflow-x: auto; }
+  @media (max-width: 600px) {
+    .card { padding: 18px 16px; }
+    .result { padding: 16px 12px; }
+    .breakdown { font-size: 14px; }
+    .breakdown th, .breakdown td { padding: 9px 7px; }
+  }
+  .calc-msg { margin: 22px 0 0; padding: 16px 18px; background: #fff6d6; border: 2px solid #c99a00; border-radius: 12px; font-weight: 600; color: #6b5300; }
+
+  .disclaimer { font-size: 14px; color: var(--muted); margin: 18px 0 0; }
+  .cta { margin-top: 26px; padding: 22px; background: #f4f0fa; border: 2px solid var(--accent); border-radius: 12px; }
+  .cta p { margin: 0 0 14px; font-weight: 500; }
+  .cta .btn { min-height: 56px; font-size: 17px; text-align: center; }
+</style>
+</head>
+<body>
+
+<div class="utility">
+  <div class="container">
+    <span>WhatsApp <a href="https://wa.me/917330704606">+91 7330704606</a></span>
+  </div>
+</div>
+
+<header class="site">
+  <div class="container">
+    <a class="brand" href="/"><img src="../img/carindicare-icon-grey.png" alt="" height="40"><span>Carindicare</span></a>
+    <span class="city">Hyderabad</span>
+    <nav class="site">
+      <a class="hide-m" href="/#how">How it works</a>
+      <a class="hide-m" href="/#checks">What we check</a>
+      <a class="hide-m" href="/#packages">Packages</a>
+      <a class="btn sm" href="https://carindicare.com/quick-check/">Book a check</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="calc-hero">
+    <div class="container">
+      <h1>Fuel saving calculator</h1>
+      <p>See how much petrol you could save each week by keeping your tyres properly inflated.</p>
+    </div>
+  </section>
+
+  <section class="calc-main">
+    <div class="container">
+      <div class="card">
+        <form class="fields" id="calc" novalidate onsubmit="return false;">
+          <div>
+            <label for="before">Mileage before inflating (km per litre)</label>
+            <input id="before" inputmode="decimal" autocomplete="off" placeholder="e.g. 12" aria-describedby="before-err">
+            <p class="field-err" id="before-err"></p>
+          </div>
+          <div>
+            <label for="after">Mileage after inflating (km per litre)</label>
+            <input id="after" inputmode="decimal" autocomplete="off" placeholder="e.g. 13" aria-describedby="after-err">
+            <p class="field-err" id="after-err"></p>
+          </div>
+          <div>
+            <label for="daily">Distance driven per day (km)</label>
+            <input id="daily" inputmode="decimal" autocomplete="off" placeholder="e.g. 30" aria-describedby="daily-err">
+            <p class="field-err" id="daily-err"></p>
+          </div>
+          <div>
+            <label for="yearly">Distance driven per year (km)</label>
+            <input id="yearly" inputmode="decimal" autocomplete="off" placeholder="e.g. 10950" aria-describedby="yearly-err">
+            <p class="field-err" id="yearly-err"></p>
+          </div>
+          <p class="dist-note" id="dist-note" hidden>Using the yearly distance.</p>
+          <div>
+            <label for="price">Petrol price per litre (₹)</label>
+            <input id="price" inputmode="decimal" autocomplete="off" placeholder="e.g. 116" aria-describedby="price-err">
+            <p class="field-err" id="price-err"></p>
+          </div>
+        </form>
+
+        <div aria-live="polite">
+          <div class="result" id="result" hidden>
+            <p class="headline">You could save <b id="r-week"></b> a week</p>
+            <p class="sub">About <span id="r-month"></span> a month and <span id="r-year"></span> a year</p>
+            <div class="table-wrap">
+              <table class="breakdown">
+                <thead><tr><th>Each week</th><th>Before</th><th>After</th></tr></thead>
+                <tbody>
+                  <tr><th scope="row">Petrol used</th><td id="r-l-before"></td><td id="r-l-after"></td></tr>
+                  <tr><th scope="row">Petrol cost</th><td id="r-c-before"></td><td id="r-c-after"></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <p class="calc-msg" id="calc-msg" hidden>Enter a higher mileage after inflating to see a saving.</p>
+        </div>
+
+        <p class="disclaimer">This is an estimate. Actual savings depend on driving style, traffic, load and weather.</p>
+
+        <div class="cta">
+          <p>Tyre pressure is one of the five checks in a Quick Car Health Check.</p>
+          <a class="btn block" href="https://carindicare.com/quick-check/">Book a Quick Car Health Check (₹250)</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="container">
+    <div class="cols">
+      <div>
+        <h4>Carindicare</h4>
+        <p>Doorstep car health checks in gated communities across Hyderabad, Telangana.</p>
+        <p style="margin-top:12px;">Registered office: Plot No 5&amp;6, IDA, Phase 2, Patancheru, Hyderabad, Telangana 502319</p>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <a href="https://wa.me/917330704606">WhatsApp +91 7330704606</a>
+      </div>
+      <div>
+        <h4>Services</h4>
+        <a href="/#packages">Basic</a>
+        <a href="/#packages">Standard</a>
+        <a href="/#packages">Family &amp; Long Drive</a>
+        <a href="/#packages">EV Visual Check</a>
+      </div>
+      <div>
+        <h4>Information</h4>
+        <a href="/#sample">Sample report</a>
+        <a href="/#faq">Questions</a>
+      </div>
+    </div>
+    <div class="legal">
+      <p>© <span id="year"></span> Carindicare. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+
+  const FIELDS = ["before", "after", "daily", "yearly", "price"];
+  const WEEKS_PER_MONTH = 4.33;
+  const WEEKS_PER_YEAR = 52;
+
+  // Indian number format: ₹2,030.00 and ₹1,00,000
+  const fmt2 = n => n.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const money2 = n => "₹" + fmt2(n);
+  const money0 = n => "₹" + Math.round(n).toLocaleString("en-IN");
+  const litres = n => fmt2(n) + " L";
+
+  // Returns { blank: true }, { bad: true } or { value: number > 0 }.
+  function readField(id) {
+    const raw = document.getElementById(id).value.trim().replace(/,/g, "");
+    if (raw === "") return { blank: true };
+    if (!/^(\d+\.?\d*|\.\d+)$/.test(raw)) return { bad: true };
+    const value = parseFloat(raw);
+    return value > 0 ? { value } : { bad: true };
+  }
+
+  function update() {
+    const vals = {}, blank = {};
+    FIELDS.forEach(id => {
+      const f = readField(id);
+      const input = document.getElementById(id);
+      input.setAttribute("aria-invalid", f.bad ? "true" : "false");
+      document.getElementById(id + "-err").textContent = f.bad ? "Enter a number greater than 0" : "";
+      if (f.value !== undefined) vals[id] = f.value;
+      blank[id] = !!f.blank;
+    });
+
+    // Distance: a valid yearly figure wins; otherwise a valid daily figure.
+    let weeklyKm = null;
+    if (vals.yearly !== undefined) weeklyKm = vals.yearly / 365 * 7;
+    else if (vals.daily !== undefined) weeklyKm = vals.daily * 7;
+    document.getElementById("dist-note").hidden = !(vals.yearly !== undefined && !blank.daily);
+
+    const result = document.getElementById("result");
+    const msg = document.getElementById("calc-msg");
+    result.hidden = true;
+    msg.hidden = true;
+    const ready = weeklyKm !== null && ["before", "after", "price"].every(id => vals[id] !== undefined);
+    if (!ready) return;                                   // show nothing until mileages, price and a distance are valid
+    if (vals.after <= vals.before) { msg.hidden = false; return; }
+
+    const litresBefore = weeklyKm / vals.before;
+    const litresAfter = weeklyKm / vals.after;
+    const costBefore = litresBefore * vals.price;
+    const costAfter = litresAfter * vals.price;
+    const weekly = costBefore - costAfter;
+
+    document.getElementById("r-week").textContent = money2(weekly);
+    document.getElementById("r-month").textContent = money0(weekly * WEEKS_PER_MONTH);
+    document.getElementById("r-year").textContent = money0(weekly * WEEKS_PER_YEAR);
+    document.getElementById("r-l-before").textContent = litres(litresBefore);
+    document.getElementById("r-l-after").textContent = litres(litresAfter);
+    document.getElementById("r-c-before").textContent = money2(costBefore);
+    document.getElementById("r-c-after").textContent = money2(costAfter);
+    result.hidden = false;
+  }
+
+  FIELDS.forEach(id => document.getElementById(id).addEventListener("input", update));
+  update();
+</script>
+</body>
+</html>
