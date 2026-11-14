@@ -234,6 +234,11 @@
   const SLOT_CAPACITY = 2;      // confirmed bookings allowed per slot, as on the main form
   const DAYS_AHEAD = 14;        // today plus the next 14 days
   const PRICE = 250;
+  // Promotion code from the page link, e.g. ?src=ozone_heights_16112026. Sent with the booking, never shown on the page.
+  const promoCode = (() => {
+    const v = (new URLSearchParams(window.location.search).get("src") || "").toLowerCase();
+    return /^[a-z0-9_]{1,40}$/.test(v) ? v : "";
+  })();
 
   let availability = {};
   let selectedDate = "";
@@ -393,7 +398,8 @@
       secondCar: false,
       notes: "",
       source: "quick-check",
-      price: PRICE
+      price: PRICE,
+      promo: promoCode
     };
 
     sending = true;
