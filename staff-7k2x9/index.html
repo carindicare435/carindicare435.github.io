@@ -420,6 +420,7 @@ function quickRow(b) {
     '<td>' + dash(b.phone) + '</td>' +
     '<td>' + dash(b.community) + '</td>' +
     '<td>' + dash(b.reg) + '</td>' +
+    '<td>' + dash(b.promo) + '</td>' +
     '<td>' + (STATUS[b.status] ? badge(b.status) : dash(b.status)) + '</td>' +
     '<td>' + createdText(b.createdAt) + '</td>' +
     '<td><button class="btn sm" onclick="openBooking(\'' + b.id + '\')">Open</button></td>' +
@@ -427,7 +428,8 @@ function quickRow(b) {
 }
 
 // Filters for the Quick checks tab. Kept in memory only, so they reset when the page reloads.
-const quickFilter = { status: '', from: '', to: '', slot: '', q: '' };
+const quickFilter = { status: '', from: '', to: '', slot: '', promo: '', q: '' };
+const NO_PROMO = '-'; // filter value for "No promo code"; can never be a real code
 
 function quickMatches(b) {
   const f = quickFilter;
@@ -435,6 +437,7 @@ function quickMatches(b) {
   if (f.from && !(b.date && b.date >= f.from)) return false;
   if (f.to && !(b.date && b.date <= f.to)) return false;
   if (f.slot && b.slot !== f.slot) return false;
+  if (f.promo === NO_PROMO ? String(b.promo || '') !== '' : (f.promo && String(b.promo || '') !== f.promo)) return false;
   // ignore case, spaces and punctuation: "b-204", "B 204" and "b204" all match "B-204"
   const squash = v => String(v == null ? '' : v).toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
   const needle = squash(f.q);
@@ -445,6 +448,13 @@ function quickMatches(b) {
   const digits = raw.replace(/^\+91/, '').replace(/\D/g, ''); // stored numbers have no +91
   const phone = String(b.phone == null ? '' : b.phone).replace(/\D/g, '');
   return /^[\d+\-()]+$/.test(raw) && digits !== '' && phone !== '' && phone.includes(digits);
+}
+
+// Every distinct promo code on quick checks, plus the selected one if it has gone, so the dropdown always shows it.
+function promoCodes() {
+  const codes = new Set(db.bookings.filter(isQuick).map(b => String(b.promo || '')).filter(Boolean));
+  if (quickFilter.promo && quickFilter.promo !== NO_PROMO) codes.add(quickFilter.promo);
+  return [...codes].sort();
 }
 
 function quickShown() { return db.bookings.filter(b => isQuick(b) && quickMatches(b)).sort(sortByWhen); }
@@ -461,6 +471,9 @@ function renderQuick() {
       '<div><label for="qfTo">Date to</label><input id="qfTo" type="date" value="' + esc(f.to) + '" onchange="setQuickFilter(\'to\', this.value)"></div>' +
       '<div><label for="qfSlot">Slot</label><select id="qfSlot" onchange="setQuickFilter(\'slot\', this.value)"><option value="">All</option>' +
         SLOTS.map(s => '<option value="' + esc(s) + '"' + (f.slot === s ? ' selected' : '') + '>' + esc(s.split(',')[0]) + '</option>').join('') + '</select></div>' +
+      '<div><label for="qfPromo">Promo</label><select id="qfPromo" onchange="setQuickFilter(\'promo\', this.value)"><option value="">All</option>' +
+        '<option value="' + NO_PROMO + '"' + (f.promo === NO_PROMO ? ' selected' : '') + '>No promo code</option>' +
+        promoCodes().map(c => '<option value="' + esc(c) + '"' + (f.promo === c ? ' selected' : '') + '>' + esc(c) + '</option>').join('') + '</select></div>' +
       '<div><label for="qfQ">Search</label><input id="qfQ" placeholder="Name, phone, flat or car reg" value="' + esc(f.q) + '" oninput="setQuickFilter(\'q\', this.value)"></div>' +
       '<button class="btn sm ghost" onclick="clearQuickFilters()">Clear filters</button>' +
       '<button class="btn sm ghost" onclick="exportCSV(true)">Export CSV</button>' +
@@ -477,7 +490,7 @@ function drawQuickList() {
   if (!all) { box.innerHTML = '<p class="sub">No quick checks yet</p>'; return; }
   box.innerHTML = '<p class="sub">Showing ' + list.length + ' of ' + all + ' quick checks</p>' +
     (list.length
-      ? '<div class="wrap"><table><thead><tr><th>Date</th><th>Slot</th><th>Name</th><th>Phone</th><th>Flat or house</th><th>Car reg</th><th>Status</th><th>Created</th><th></th></tr></thead><tbody>' +
+      ? '<div class="wrap"><table><thead><tr><th>Date</th><th>Slot</th><th>Name</th><th>Phone</th><th>Flat or house</th><th>Car reg</th><th>Promo</th><th>Status</th><th>Created</th><th></th></tr></thead><tbody>' +
           list.map(quickRow).join('') + '</tbody></table></div>'
       : '<p class="sub">No quick checks match these filters</p>');
 }
@@ -798,8 +811,8 @@ function parseWA(text) {
 // ---------- export and housekeeping ----------
 // The sidebar button exports the main bookings; the Quick checks tab exports the quick checks its filters show.
 function exportCSV(quickOnly) {
-  const head = ['Date', 'Slot', 'Name', 'Phone', 'Community', 'Car', 'Registration', 'Package', 'Second car', 'EV check', 'Total', 'Paid', 'Status'];
-  const rows = (quickOnly ? quickShown() : db.bookings.filter(b => !isQuick(b)).sort(sortByWhen)).map(b => [b.date, b.slot, b.name, b.phone, b.community, b.car, b.reg, pkgInfo(b).name, b.secondCar ? 'Yes' : 'No', b.ev ? 'Yes' : 'No', total(b), paidSum(b), STATUS[b.status]]);
+  const head = ['Date', 'Slot', 'Name', 'Phone', 'Community', 'Car', 'Registration'].concat(quickOnly ? ['Promo'] : [], ['Package', 'Second car', 'EV check', 'Total', 'Paid', 'Status']);
+  const rows = (quickOnly ? quickShown() : db.bookings.filter(b => !isQuick(b)).sort(sortByWhen)).map(b => [b.date, b.slot, b.name, b.phone, b.community, b.car, b.reg].concat(quickOnly ? [b.promo || ''] : [], [pkgInfo(b).name, b.secondCar ? 'Yes' : 'No', b.ev ? 'Yes' : 'No', total(b), paidSum(b), STATUS[b.status]]));
   const csv = [head, ...rows].map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n');
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
@@ -1301,7 +1314,7 @@ function pushBooking(b) {
     id: b.id, createdAt: b.createdAt, status: b.status, name: b.name, phone: b.phone,
     community: b.community, car: b.car, reg: b.reg, pkg: b.pkg, secondCar: b.secondCar,
     ev: b.ev, date: b.date, slot: b.slot, notes: b.notes, paymentLink: b.paymentLink, reg2: b.reg2 || '', plan: b.plan || 'none', subId: b.subId || '', subStart: b.subStart || '', disinfect: !!b.disinfect,
-    source: b.source || '', price: b.price == null ? '' : b.price
+    source: b.source || '', price: b.price == null ? '' : b.price, promo: b.promo || ''
   };
   fetch(CONFIG.backendUrl, {
     method: 'POST',
@@ -1334,6 +1347,7 @@ async function syncFromSheet(showMessage) {
       if (known) {
         // fill in source and price for bookings stored before these fields were copied
         if (!known.source && r.source) { known.source = r.source; known.price = r.price == null || r.price === '' ? '' : Number(r.price); }
+        if (!known.promo && r.promo) known.promo = String(r.promo);
         return;
       }
       const b = mk({
@@ -1341,7 +1355,8 @@ async function syncFromSheet(showMessage) {
         phone: String(r.phone || '').replace(/\D/g, '').slice(-10), community: r.community,
         car: r.car, reg: r.reg, reg2: r.reg2 || '', pkg: r.pkg, secondCar: !!r.secondCar, ev: !!r.ev, disinfect: !!r.disinfect, plan: r.plan || 'none', subId: r.subId || '', subStart: dateFromSheet(r.subStart),
         date: dateFromSheet(r.date), slot: r.slot, notes: r.notes || '', paymentLink: r.paymentLink || '',
-        source: r.source || '', price: r.price == null || r.price === '' ? '' : Number(r.price)
+        source: r.source || '', price: r.price == null || r.price === '' ? '' : Number(r.price),
+        promo: r.promo || ''
       });
       log(b, 'Request received from website');
       db.bookings.push(b);
