@@ -61,8 +61,8 @@
   .btn.sm { padding: 9px 16px; font-size: 14px; }
 
   footer { background: var(--ink); color: #aab2bd; padding: 60px 0 28px; font-size: 14px; }
-  footer .cols { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 32px; }
-  @media (max-width: 860px) { footer .cols { grid-template-columns: 1fr 1fr; } }
+  footer .cols { display: grid; grid-template-columns: 1.5fr 1fr; gap: 32px; }
+  @media (max-width: 600px) { footer .cols { grid-template-columns: 1fr; } }
   footer h4 { color: var(--white); font-size: 15px; font-weight: 600; margin: 0 0 14px; }
   footer a { display: block; color: #aab2bd; text-decoration: none; margin-bottom: 8px; }
   footer a:hover { color: var(--white); }
@@ -139,12 +139,9 @@
 
 <header class="site">
   <div class="container">
-    <a class="brand" href="/"><img src="../img/carindicare-icon-grey.png" alt="" height="40"><span id="logo-name">Carindicare</span></a>
+    <a class="brand" href="https://carindicare.com/quick-check/"><img src="../img/carindicare-icon-grey.png" alt="" height="40"><span id="logo-name">Carindicare</span></a>
     <span class="city">Hyderabad</span>
     <nav class="site">
-      <a class="hide-m" href="/#how">How it works</a>
-      <a class="hide-m" href="/#checks">What we check</a>
-      <a class="hide-m" href="/#packages">Packages</a>
       <a class="btn sm" href="#book">Book now</a>
     </nav>
   </div>
@@ -156,11 +153,11 @@
       <h1>Quick car health check, ₹250</h1>
       <p class="qc-offer">This offer applies to bookings made today, for visits within the next 14 days.</p>
       <ul class="qc-list">
-        <li><svg width="22" height="22" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="8.5"/><path d="M5 9.2l2.6 2.6L13 6.4" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Tyre pressure check</li>
-        <li><svg width="22" height="22" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="8.5"/><path d="M5 9.2l2.6 2.6L13 6.4" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Tread depth check</li>
-        <li><svg width="22" height="22" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="8.5"/><path d="M5 9.2l2.6 2.6L13 6.4" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Washer fluid top-up</li>
-        <li><svg width="22" height="22" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="8.5"/><path d="M5 9.2l2.6 2.6L13 6.4" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Brake pad visual check</li>
-        <li><svg width="22" height="22" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="8.5"/><path d="M5 9.2l2.6 2.6L13 6.4" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>AC filter inspection (Visual)</li>
+        <li><svg width="22" height="22" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="8.5"/><path d="M5 9.2l2.6 2.6L13 6.4" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Tyre pressure</li>
+        <li><svg width="22" height="22" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="8.5"/><path d="M5 9.2l2.6 2.6L13 6.4" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Tyre tread depth, cuts and damage</li>
+        <li><svg width="22" height="22" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="8.5"/><path d="M5 9.2l2.6 2.6L13 6.4" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Windscreen washer top-up</li>
+        <li><svg width="22" height="22" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="8.5"/><path d="M5 9.2l2.6 2.6L13 6.4" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Front and rear brake pads</li>
+        <li><svg width="22" height="22" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="8.5"/><path d="M5 9.2l2.6 2.6L13 6.4" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>AC filter</li>
       </ul>
       <p class="qc-promise">No upselling. No repairs. No product sales. Just a health check and a report.</p>
     </div>
@@ -210,23 +207,10 @@
       <div>
         <h4 id="footer-name">Carindicare</h4>
         <p>Doorstep car health checks in gated communities across Hyderabad, Telangana.</p>
-        <p style="margin-top:12px;">Registered office: Plot No 5&amp;6, IDA, Phase 2, Patancheru, Hyderabad, Telangana 502319</p>
       </div>
       <div>
         <h4>Contact</h4>
         <a id="foot-wa" href="https://wa.me/917330704606">WhatsApp +91 7330704606</a>
-      </div>
-      <div>
-        <h4>Services</h4>
-        <a href="/#packages">Basic</a>
-        <a href="/#packages">Standard</a>
-        <a href="/#packages">Family &amp; Long Drive</a>
-        <a href="/#packages">EV Visual Check</a>
-      </div>
-      <div>
-        <h4>Information</h4>
-        <a href="/#sample">Sample report</a>
-        <a href="/#faq">Questions</a>
       </div>
     </div>
     <div class="legal">
