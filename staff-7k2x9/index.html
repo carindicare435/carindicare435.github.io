@@ -89,7 +89,7 @@
   <input id="bkey" type="password" autocomplete="off" onkeydown="if(event.key==='Enter')login()">
   <div style="margin-top:12px;"><button class="btn" onclick="login()">Sign in</button></div>
   <p id="loginErr" class="err"></p>
-  <p class="sub" style="font-size:12px;">Demo sign-in. Replace before real use, and keep this link private.</p>
+ 
 </div>
 
 <div id="app" class="layout hidden">
@@ -124,7 +124,7 @@
 <script>
 // ---------- settings ----------
 const CONFIG = {
-  adminPin: '2017',
+  adminPin: '2026',
   backendUrl: 'https://script.google.com/macros/s/AKfycbxIQ8B9_4st748s9WQqB7rEKMfpGvy1jVgguOjB9TeUjKL_J_zQQxNPQ2MBd8LHysI8/exec',            // change this before use
   businessName: 'Carindicare',
   website: 'Carindicare.com',
@@ -152,7 +152,7 @@ const CHECKS = [
   { id: 'wipers', label: 'Wipers', pkgs: ['quick', 'complete', 'family'] },
   { id: 'fluids', label: 'Fluid levels: engine oil, coolant, brake, washer', pkgs: ['quick', 'complete', 'family'] },
   { id: 'washer_topup', label: 'Washer fluid top-up (fluid supplied by us)', pkgs: ['complete', 'family', 'quickcheck'] },
-  { id: 'air_filter', label: 'Air filter (visual)', quickLabel: 'Engine air filter inspection (Visual)', pkgs: ['quick', 'complete', 'family', 'quickcheck'] },
+  { id: 'air_filter', labels: { quick: 'AC air filter check', complete: 'Engine air filter check', family: 'AC air filter clean', quickcheck: 'AC filter inspection (Visual)' }, pkgs: ['quick', 'complete', 'family', 'quickcheck'] },
   { id: 'engine_scan', label: 'Engine scan (note "not completed" if it does not connect)', pkgs: ['complete', 'family'] },
   { id: 'brake_pads', label: 'Brake pads, internal and outer', pkgs: ['complete', 'family', 'quickcheck'] },
   { id: 'brake_fluid', label: 'Coolant and brake fluid condition', pkgs: ['family'] },
@@ -204,8 +204,11 @@ function paidSum(b) { return (b.payments || []).reduce((s, p) => s + p.amount, 0
 function outstanding(b) { return total(b) - paidSum(b); }
 function log(b, text) { b.log = b.log || []; b.log.unshift({ at: new Date().toLocaleString('en-IN'), text }); dirty.add(b.id); }
 function applicableChecks(b) { return CHECKS.filter(c => c.ev ? b.ev : (c.pkgs || []).includes(b.pkg)); }
-// Checklist wording for this booking: quick checks use quickLabel where an item has one.
-function labelFor(item, b) { return item.quickLabel && (b.pkg === 'quickcheck' || isQuick(b)) ? item.quickLabel : item.label; }
+// Checklist wording for this booking's package: an item's labels map if it has one, otherwise its label.
+function labelFor(item, b) {
+  const key = isQuick(b) ? 'quickcheck' : b.pkg;
+  return (item.labels && item.labels[key]) || item.label;
+}
 function waLink(phone, text) { return 'https://wa.me/91' + phone + '?text=' + encodeURIComponent(text); }
 function mk(o) {
   return Object.assign({
