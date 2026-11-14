@@ -882,14 +882,15 @@ function reminderItems() {
   const t = today(), items = [];
   const sentAlready = (b, key) => (b.reminders || []).some(r => r.key === key);
 
-  // visits in the next two days
+  // visits in the next 14 days (the "Due within" filter limits what is shown)
   db.bookings.forEach(b => {
     if (!['confirmed', 'paid'].includes(b.status)) return;
     const gap = dayNum(b.date) - dayNum(t);
-    if (gap < 0 || gap > 2) return;
+    if (!(gap >= 0 && gap <= 14)) return; // also skips a missing or unreadable date
     const key = 'visit-' + b.id + '-' + b.date;
     if (sentAlready(b, key)) return;
-    items.push({ kind: 'Visit in the next 2 days', due: b.date, b: b, key: key,
+    const kind = gap === 0 ? 'Visit due today' : 'Visit due in ' + gap + (gap === 1 ? ' day' : ' days');
+    items.push({ type: 'visit', kind: kind, due: b.date, b: b, key: key,
       text: 'Hi ' + b.name + ', reminder: your ' + pkgInfo(b).name + ' is booked for ' + niceDate(b.date) + ' (' + b.slot + ') at ' + b.community + '. Please keep the car accessible for the technician. Reply if you need to change the time.' });
   });
 
@@ -906,7 +907,7 @@ function reminderItems() {
       if (used >= k + 1 || gap > 14 || gap < -30) continue;
       const key = 'sub-' + lead.subId + '-' + k;
       if (sentAlready(lead, key)) continue;
-      items.push({ kind: 'Subscription visit due', due: due, b: lead, key: key,
+      items.push({ type: 'sub', kind: 'Subscription visit due', due: due, b: lead, key: key,
         text: 'Hi ' + lead.name + ', your ' + p.name + ' visit is due around ' + niceDate(due) + '. Reply and we will book your slot.' });
     }
     const end = subEnd(lead);
@@ -914,7 +915,7 @@ function reminderItems() {
     const egap = dayNum(end) - dayNum(t);
     if (left > 0 && egap >= 0 && egap <= 30) {
       const key = 'end-' + lead.subId;
-      if (!sentAlready(lead, key)) items.push({ kind: 'Subscription ending', due: end, b: lead, key: key,
+      if (!sentAlready(lead, key)) items.push({ type: 'end', kind: 'Subscription ending', due: end, b: lead, key: key,
         text: 'Hi ' + lead.name + ', your ' + p.name + ' ends on ' + niceDate(end) + ' and you have ' + left + ' visit' + (left > 1 ? 's' : '') + ' left. Reply to book them before then.' });
     }
   });
@@ -935,7 +936,7 @@ function reminderItems() {
     if (booked) return;
     const key = 'svc-' + k + '-' + due;
     if (sentAlready(last, key)) return;
-    items.push({ kind: 'Service due', due: due, b: last, key: key,
+    items.push({ type: 'svc', kind: 'Service due', due: due, b: last, key: key,
       text: 'Hi ' + last.name + ', your car (' + last.reg + ') is due for its next check around ' + niceDate(due) + '. Reply and we will book a slot.' });
   });
   return items.sort((x, y) => x.due.localeCompare(y.due));
@@ -951,15 +952,34 @@ function sendReminder(key) {
   render();
 }
 
+// Filters for the Reminders tab. Kept in memory only, so they reset when the page reloads.
+const reminderFilter = { within: 2, type: '' };
+const REMINDER_TYPES = [['visit', 'Visit due'], ['sub', 'Subscription visit due'], ['end', 'Subscription ending'], ['svc', 'Service due']];
+function setReminderFilter(key, value) { reminderFilter[key] = key === 'within' ? Number(value) : value; renderReminders(); }
+
 function renderReminders() {
-  const items = reminderItems();
-  let html = '<h1>Reminders</h1><p class="sub">Each button opens WhatsApp with the message ready. Once sent, the reminder is marked as sent and won\'t show again.</p>';
-  if (!items.length) {
+  const f = reminderFilter;
+  const all = reminderItems();
+  const t = dayNum(today());
+  // overdue items always show; others are due today or later and no more than f.within days from today
+  const items = all.filter(i => { const g = dayNum(i.due) - t; return (g < 0 || (g >= 0 && g <= f.within)) && (!f.type || i.type === f.type); });
+  const overdue = i => { const n = t - dayNum(i.due); return n > 0 ? '<br><span style="color:#b3261e;font-weight:600;font-size:12px;">Overdue by ' + n + (n === 1 ? ' day' : ' days') + '</span>' : ''; };
+  let html = '<h1>Reminders</h1><p class="sub">Each button opens WhatsApp with the message ready. Once sent, the reminder is marked as sent and won\'t show again.</p>' +
+    '<div class="toolbar" style="align-items:flex-end;">' +
+      '<div><label for="rfWithin">Due within</label><select id="rfWithin" onchange="setReminderFilter(\'within\', this.value)">' +
+        Array.from({ length: 14 }, (_, n) => n + 1).map(n => '<option value="' + n + '"' + (f.within === n ? ' selected' : '') + '>' + n + (n === 1 ? ' day' : ' days') + '</option>').join('') + '</select></div>' +
+      '<div><label for="rfType">Type</label><select id="rfType" onchange="setReminderFilter(\'type\', this.value)"><option value="">All</option>' +
+        REMINDER_TYPES.map(([v, label]) => '<option value="' + v + '"' + (f.type === v ? ' selected' : '') + '>' + esc(label) + '</option>').join('') + '</select></div>' +
+    '</div>';
+  if (!all.length) {
     html += '<p class="sub">No reminders due right now.</p>';
   } else {
-    html += '<div class="wrap"><table><thead><tr><th>Due</th><th>Type</th><th>Customer</th><th>Phone</th><th>Message</th><th></th></tr></thead><tbody>' +
-      items.map(i => '<tr><td>' + niceDate(i.due) + '</td><td>' + esc(i.kind) + '</td><td>' + esc(i.b.name) + '</td><td>' + esc(i.b.phone) + '</td><td style="max-width:360px;">' + esc(i.text) + '</td><td><button class="btn sm wa" onclick="sendReminder(\'' + i.key + '\')">Send on WhatsApp</button></td></tr>').join('') +
-      '</tbody></table></div>';
+    html += '<p class="sub">Showing ' + items.length + ' of ' + all.length + ' reminders</p>';
+    html += items.length
+      ? '<div class="wrap"><table><thead><tr><th>Due</th><th>Type</th><th>Customer</th><th>Phone</th><th>Message</th><th></th></tr></thead><tbody>' +
+        items.map(i => '<tr><td>' + (i.due ? niceDate(i.due) : '—') + '</td><td>' + dash(i.kind) + overdue(i) + '</td><td>' + dash(i.b.name) + '</td><td>' + dash(i.b.phone) + '</td><td style="max-width:360px;">' + dash(i.text) + '</td><td><button class="btn sm wa" onclick="sendReminder(\'' + i.key + '\')">Send on WhatsApp</button></td></tr>').join('') +
+        '</tbody></table></div>'
+      : '<p class="sub">No reminders match these filters</p>';
   }
   document.getElementById('view').innerHTML = html;
 }
