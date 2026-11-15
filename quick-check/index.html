@@ -148,7 +148,17 @@
 </header>
 
 <main>
-  <section class="qc-hero">
+  <section class="qc-hero" id="offer-ended" hidden>
+    <div class="container">
+      <h1>This offer has ended</h1>
+      <p class="qc-offer">The ₹250 quick car health check is no longer available with this link.</p>
+      <p class="qc-promise">Thank you for your interest. You can find out about our other services on our main site.</p>
+      <p><a class="btn" href="https://carindicare.com/">Go to carindicare.com</a></p>
+      <p class="qc-promise" id="ended-redirect">Taking you there in a few seconds.</p>
+    </div>
+  </section>
+
+  <section class="qc-hero" id="offer-hero">
     <div class="container">
       <h1>Quick car health check, ₹250</h1>
       <p class="qc-offer">This offer applies to bookings made today, for visits within the next 14 days.</p>
@@ -234,11 +244,25 @@
   const SLOT_CAPACITY = 2;      // confirmed bookings allowed per slot, as on the main form
   const DAYS_AHEAD = 14;        // today plus the next 14 days
   const PRICE = 250;
-  // Promotion code from the page link, e.g. ?src=ozone_heights_16112026. Sent with the booking, never shown on the page.
+  // Promotion code from the page link, e.g. ?src=ozone_heights_18112026. Sent with the booking, never shown on the page.
   const promoCode = (() => {
     const v = (new URLSearchParams(window.location.search).get("src") || "").toLowerCase();
     return /^[a-z0-9_]{1,40}$/.test(v) ? v : "";
   })();
+  // Promotion codes that are still running. Any other ?src= value shows "offer has ended" and sends the visitor to the main site.
+  const ACTIVE_PROMO_CODES = ["ozone_heights_18112026"];
+  const rawSrc = new URLSearchParams(window.location.search).get("src");
+  if (rawSrc !== null && rawSrc !== "" && !ACTIVE_PROMO_CODES.includes(rawSrc.toLowerCase())) {
+    document.getElementById("offer-hero").style.display = "none";
+    document.getElementById("book").style.display = "none";
+    document.getElementById("offer-ended").hidden = false;
+    let secs = 6;
+    const timer = setInterval(() => {
+      secs -= 1;
+      if (secs <= 0) { clearInterval(timer); location.replace("https://carindicare.com/"); }
+      else document.getElementById("ended-redirect").textContent = "Taking you there in " + secs + " seconds.";
+    }, 1000);
+  }
 
   let availability = {};
   let selectedDate = "";
